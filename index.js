@@ -8,7 +8,7 @@ const {WsAdapter} = require('./ws-adapter');
 const {Gate} = require('./gate');
 
 class System {
-    init(config, gates) {
+    init(config) {
         this.logger = logger;
         this.utils = utils;
         this.validator = validator;
@@ -16,6 +16,10 @@ class System {
         this.dbAdapter = new DbAdapter(config);
         this.httpAdapter = new HttpAdapter(config);
         this.wsAdapter = new WsAdapter(config);
+
+    }
+
+    gateInit(gates) {
         this.gate = new Gate(gates);
     }
 }
