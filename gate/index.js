@@ -25,6 +25,9 @@ class Gate {
             }
 
             console.info(`SYSTEM [INFO]: Got request:`, data);
+            if (!this.gates[data.domain]) {
+                throw new ValidationError('Incorrect domain');
+            }
             validator.validate(data, gateSchema);
             const result = systemResponse.form(request, await this.gates[data.domain].run(data));
             console.info(`SYSTEM [INFO]: Send result:`, result);
