@@ -22,8 +22,8 @@ class System {
 
     }
 
-    gateInit(gates) {
-        this.gate = new Gate(gates);
+    gateInit(controllers) {
+        this.gate = new Gate(controllers);
     }
 }
 
