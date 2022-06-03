@@ -1,4 +1,4 @@
-const {schemaItems: {string}} = require('../validator/index.js');
+const {validator: {string}} = require('../validator');
 
 const gateSchema = {
     id: '/Gate',
