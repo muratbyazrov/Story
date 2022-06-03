@@ -1,0 +1,25 @@
+{
+  "name": "story-system",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cookie-parser": "~1.4.4",
+    "db-migrate-pg": "^1.2.2",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.0",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jsonschema": "^1.4.0",
+    "morgan": "~1.9.1",
+    "pg": "^8.7.3",
+    "psql": "^0.0.1",
+    "pug": "2.0.0-beta11",
+    "uuid": "^8.3.2",
+    "ws": "^8.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
