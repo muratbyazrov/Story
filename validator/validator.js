@@ -2,6 +2,17 @@ const {validate} = require('jsonschema');
 const {ValidationError} = require('../system-errors');
 
 class Validator {
+    constructor() {
+        this.schemaItems = {
+            params: {
+                'type': 'object',
+            },
+            string: {'type': 'string'},
+            number: {'type': 'number'},
+            limit: {'type': 'number', 'minValue': 1},
+        };
+    }
+
     validate(request, schema) {
         const validateResult = validate(request, schema);
 
