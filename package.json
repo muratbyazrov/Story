@@ -1,6 +1,6 @@
 {
   "name": "story-system",
-  "version": "1.0.4",
+  "version": "1.0.4npm ",
   "private": true,
   "dependencies": {
     "body-parser": "^1.20.0",
