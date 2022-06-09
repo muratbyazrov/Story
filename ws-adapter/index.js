@@ -17,7 +17,6 @@ class WsAdapter {
                 wsClient.send(JSON.stringify({sessionId}));
                 this.wsClients.set(sessionId, wsClient);
 
-
                 // 2. callback
                 try {
                     wsClient.on('message', async message => {
