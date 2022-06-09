@@ -3,19 +3,18 @@ const {v4} = require('uuid');
 
 class WsAdapter {
     constructor(options) {
-        this.options = options;
+        this.config = options.ws;
         this.wsClients = new Map();
     }
 
     run(callback) {
-        const {ws: wsConfig, domain} = this.options;
-        this.wsServer = new WebSocket.Server({...wsConfig});
+        this.wsServer = new WebSocket.Server({...this.config});
         try {
             this.wsServer.on('connection', wsClient => {
                 // 1. connect
                 const sessionId = v4();
                 console.log(`SYSTEM [INFO]: WS client ${sessionId} is connected`);
-                wsClient.send(JSON.stringify({domain, sessionId}));
+                wsClient.send(JSON.stringify({sessionId}));
                 this.wsClients.set(sessionId, wsClient);
 
                 // 2. callback
