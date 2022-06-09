@@ -19,7 +19,6 @@ class System {
         this.dbAdapter = new DbAdapter(config);
         this.httpAdapter = new HttpAdapter(config);
         this.wsAdapter = new WsAdapter(config);
-
     }
 
     gateInit(controllers) {
