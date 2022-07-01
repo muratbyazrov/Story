@@ -7,9 +7,10 @@ class Validator {
             params: {
                 'type': 'object',
             },
-            string: {'type': 'string', minLength: 1},
-            number: {'type': 'number'},
-            limit: {'type': 'number', 'minValue': 1},
+            string: {type: 'string', minLength: 1},
+            number: {type: 'number'},
+            limit: {type: 'number', 'minValue': 1},
+            array: {type: 'array', minItems: 1}
         };
     }
 
