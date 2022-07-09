@@ -25,10 +25,13 @@ class Gate {
             }
 
             console.info(`SYSTEM [INFO]: Got request:`, data);
-            !this.controllers[data.domain] && throw new ValidationError('Incorrect domain');
-            !this.controllers[data.domain][data.event] && throw new ValidationError('Method not found');
+            if (!this.controllers[data.domain]) {
+                throw new ValidationError('Incorrect domain')
+            }
+            if (!this.controllers[data.domain][data.event]) {
+                throw new ValidationError('Method not found');
+            }
             validator.validate(data, gateSchema);
-
             const result = systemResponse.form(request, await this.controllers[data.domain][data.event](data));
             console.info(`SYSTEM [INFO]: Send result:`, result);
             return result;
