@@ -6,10 +6,10 @@ const {gateSchema} = require('./gate-schema.js');
 const {ValidationError} = require('../system-errors/validation-error');
 
 class Gate {
-    constructor(gates) {
-        this.gates = {};
-        for (const {EntityGate, domain} of gates) {
-            this.gates[domain] = new EntityGate();
+    constructor(controllers) {
+        this.controllers = {};
+        for (const {EntityController, domain} of controllers) {
+            this.controllers[domain] = new EntityController();
         }
     }
 
@@ -25,11 +25,11 @@ class Gate {
             }
 
             console.info(`SYSTEM [INFO]: Got request:`, data);
-            if (!this.gates[data.domain]) {
-                throw new ValidationError('Incorrect domain');
-            }
+            !this.controllers[data.domain] && throw new ValidationError('Incorrect domain');
+            !this.controllers[data.domain][data.event] && throw new ValidationError('Method not found');
             validator.validate(data, gateSchema);
-            const result = systemResponse.form(request, await this.gates[data.domain].run(data));
+
+            const result = systemResponse.form(request, await this.controllers[data.domain][data.event](data));
             console.info(`SYSTEM [INFO]: Send result:`, result);
             return result;
         } catch (err) {
