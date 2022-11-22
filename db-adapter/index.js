@@ -10,6 +10,7 @@ class DbAdapter {
         this.client = new Client(this.config.db);
         this.connectPostgres();
         this.runMigrations();
+        this.setDbSearchPath();
     }
 
     async connectPostgres() {
@@ -33,6 +34,10 @@ class DbAdapter {
                 console.log(`SYSTEM [ERROR]: exec error: ${error}`);
             }
         });
+    }
+
+    async setDbSearchPath() {
+        await this.client.query(`SET SEARCH_PATH = '${this.config.db.schema}'`);
     }
 
     async execQuery({queryName, params, isArrayResult = true}) {
