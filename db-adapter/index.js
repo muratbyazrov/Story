@@ -40,11 +40,11 @@ class DbAdapter {
         await this.client.query(`SET SEARCH_PATH = '${this.config.db.schema}'`);
     }
 
-    async execQuery({queryName, params, isArrayResult = true}) {
+    async execQuery({queryName, params, options = {}}) {
         const preparedQuery = this.getPreparedQuery(queryName, params);
         try {
             const result = await this.client.query(preparedQuery);
-            return isArrayResult ? result.rows : result.rows[0];
+            return options.singularRow ? result.rows[0] : result.rows;
         } catch (err) {
             logger.error(err.message);
             throw new DbError(err.message);
