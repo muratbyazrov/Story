@@ -10,6 +10,7 @@ class Validator {
             string: {type: 'string'},
             string1: {type: 'string', minLength: 1},
             number: {type: 'number'},
+            number1: {type: 'number', minValue: 1},
             limit: {type: 'number', 'minValue': 1},
             array: {type: 'array'},
             array1: {type: 'array', minItems: 1},
