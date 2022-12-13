@@ -38,10 +38,11 @@ class WsAdapter {
     }
 
     async send({sessionId = null, message = {}}) {
+        const wsClient = this.wsClients.get(sessionId);
         console.info(`SYSTEM [INFO]: send WS message to ${sessionId}`, {message})
         try {
-            const wsClient = this.wsClients.get(sessionId);
             wsClient && await wsClient.send(JSON.stringify(message));
+            console.info(`SYSTEM [INFO]: message sent to ${sessionId}`)
         } catch (error) {
             console.error(`SYSTEM [ERROR]: ${error.message}`);
         }
