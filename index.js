@@ -7,7 +7,7 @@ const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {Gate} = require('./gate');
 
-class System {
+class Story {
     constructor() {
         this.logger = logger;
         this.utils = utils;
@@ -21,11 +21,11 @@ class System {
         this.wsAdapter = new WsAdapter(config);
     }
 
-    gateInit(controllers) {
-        this.gate = new Gate(controllers);
+    gateInit({controllers, config}) {
+        this.gate = new Gate(controllers, config);
     }
 }
 
 module.exports = {
-    System: new System(),
+    Story: new Story(),
 };

@@ -6,7 +6,7 @@ const {gateSchema} = require('./gate-schema.js');
 const {ValidationError} = require('../system-errors/validation-error');
 
 class Gate {
-    constructor(controllers) {
+    constructor(controllers, config) {
         this.controllers = {};
         for (const {EntityController, domain} of controllers) {
             this.controllers[domain] = new EntityController();
@@ -32,11 +32,11 @@ class Gate {
                 throw new ValidationError('Method not found');
             }
             validator.validate(data, gateSchema);
-            const result = systemResponse.form(request, await this.controllers[data.domain][data.event](data));
+            const result = systemResponse.format(request, await this.controllers[data.domain][data.event](data));
             console.info(`SYSTEM [INFO]: Send result:`, result);
             return result;
         } catch (err) {
-            const error = systemResponse.form(request, err);
+            const error = systemResponse.format(request, err);
             logger.log(error);
             return error;
         }
