@@ -6,7 +6,7 @@ const {gateSchema} = require('./gate-schema.js');
 const {ValidationError} = require('../system-errors/validation-error');
 
 class Gate {
-    constructor(controllers, config) {
+    constructor(config, controllers) {
         this.controllers = {};
         for (const {EntityController, domain} of controllers) {
             this.controllers[domain] = new EntityController();

@@ -2,6 +2,7 @@
 
 - Story-System (далее SS) - легковесный фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
 - Работает с протоколами http, websocket, с брокером сообщений rabbitMQ и с базой данных Postgres
+- Использует доменно-событийную модель
 
 
 ### Оглавление
@@ -85,7 +86,7 @@ cats-application
     host: '192.168.236.109',
     port: 9001,
   },
-  rabbit: {
+  rmq: {
     host: '192.168.236.109',
     port: 9001,
   },
@@ -105,12 +106,11 @@ const {CatsController} = require('./src/entities/cats/cats-controller.js');
 
 class App {
     constructor() {
-        Story.init(config);
-        Story.gateInit([
-            {EntityController: CatsController, domain: 'cats'},
-        ]);
-        Story.httpAdapter.run(request => Story.gate.run(request));
-        Story.wsAdapter.run(request => Story.gate.run(request));
+      Story.gateInit(config, [
+        {EntityController: CatsController, domain: 'cats'},
+      ]);
+        
+      Story.adaptersInit(config);
     }
 }
 
@@ -121,9 +121,7 @@ new App();
 ```JS
 // cats-controller.js
 const {Story} = require('story-system');
-const {
-  getCatsSchema,
-} = require('./schemas.js');
+const {getCatsSchema} = require('./schemas.js');
 const {CatsService} = require('./cats-service');
 
 class CatsController {
@@ -144,9 +142,7 @@ module.exports = {CatsController};
 ```JS
 // cats-service.js
 const {Story} = require('story-system');
-const {
-  getCats,
-} = require('./queries.js');
+const {getCats} = require('./queries.js');
 
 class CatsService {
   getCats(data) {
@@ -208,8 +204,8 @@ module.exports = {
 ```
   
 
-#### gate
-Все запросы (http, ws, rabbit) идут через gate.
+## gate
+Все запросы (http, ws, rmq) идут через gate.
 
 - Конструирует объект `controllers`, состоящий из пар {`<domain>`: `<controller>`} 
 (Домен и контроллер регистрируются в корневом файле проекта `app.js`)
@@ -217,13 +213,12 @@ module.exports = {
   - Приводит запрос к объекту *JavaScript*
   - Проверяет выданный токен. Если токен не валидный, возвращает ответ с ошибкой
   - Проверяет, существует ли `domain`. Если `domain` не существует, возвращает ответ с ошибкой.
+  - Проверяет, существует ли метод (`event`). Если метод не существует, возвращает ответ с ошибкой.
 - Выполняет запрос, обращаясь к нужному контроллеру, а затем к нужному методу контроллера 
-(`controllers[data.domain][data.event](data)` и к нужному методу через, где `data` - это тело запроса
+(`controllers[data.domain][data.event](data)`, где `data` - это тело запроса
 - Приводит ответ к системному ответу
 - Возвращает ответ
-    
-Примечание. Если вы ищете связь между gate и адаптерами (http, ws, rabbit) - то вы не найдете это в самом
-фреймворке. Дело в том, что адаптеры запускаются в корневом файле `app.js`, которым передается колбэк в виде
-вызова `gate.run(request)`. Тут-то и срабатывает `gate`
 
-
+*Примечание*. Если вы задаетесь вопросом, как запросы попадают в `gate`, то обратите внимание
+на [корневой](index.js) файл проекта, метод `adaptersInit`. Здесь видно, что при получении запроса все 
+адаптеры колбэком вызывают метод `gate.run()`

@@ -15,14 +15,26 @@ class Story {
         this.systemResponse = systemResponse;
     }
 
-    init(config) {
-        this.dbAdapter = new DbAdapter(config);
-        this.httpAdapter = new HttpAdapter(config);
-        this.wsAdapter = new WsAdapter(config);
+    gateInit(config, controllers) {
+        this.gate = new Gate(config, controllers);
     }
 
-    gateInit({controllers, config}) {
-        this.gate = new Gate(controllers, config);
+    adaptersInit({db, http, ws, rmq}) {
+        db &&
+        (this.dbAdapter = new DbAdapter(config)) &&
+        this.httpAdapter.run(request => this.gate.run(request));
+
+        http &&
+        (this.httpAdapter = new HttpAdapter(config)) &&
+        this.wsAdapter.run(request => this.gate.run(request));
+
+        ws &&
+        (this.wsAdapter = new WsAdapter(config)) &&
+        this.wsAdapter.run(request => this.gate.run(request));
+
+        rmq &&
+        (this.rmqAdapter = new rmqAdapter(config)) &&
+        this.rmqAdapter.run(request => this.gate.run(request));
     }
 }
 
