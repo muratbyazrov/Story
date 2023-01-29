@@ -11,8 +11,6 @@
   - [Вспомогательные файлы](#Вспомогательные-файлы)
   - [Конфигурационный файл](#Конфигурационный-файл)
   - [Корневой файл проекта](#Корневой-файл-проекта)
-    - [db](#db)
-    - [entities](#entities)
       - [controller](#controller)
       - [service](#service)
       - [schema](#schema)
@@ -65,7 +63,7 @@ cats-application
   - .gitignore
   - package.json
 
-##### Конфигурационный файл *config.js*
+##### Конфигурационный файл
 ```JS
 // config.js
  module.exports = {
@@ -97,7 +95,7 @@ cats-application
 };
 ```
 
-- Корневой файл проекта `app.js`
+##### Корневой файл проекта
 ```JS
 // app.js
 const {Story} = require('story-system');
