@@ -19,7 +19,7 @@
   - [gate](gate)
   - [http-adapter](http-adapter)
   - [ws-adapter](ws-adapter)
-  - [rabbit-adapter](rabbit-adapter)
+  - [rmq-adapter](rmq-adapter)
   - [db-adapter](db-adapter)
   - [validator](validator)
   - [logger](logger)
