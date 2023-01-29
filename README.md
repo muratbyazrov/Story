@@ -190,7 +190,7 @@ module.exports = {
   getCats: `
         SELECT
              cat_id AS "catId"
-            ,cat AS "catName"
+            ,cat_name AS "catName"
         FROM
             cats AS c
         WHERE
