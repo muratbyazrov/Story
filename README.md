@@ -14,8 +14,8 @@
   - [Для работы с сущностью](#Для-работы-с-сущностью)
       - [controller](#controller)
       - [service](#service)
-      - [schema](#schema)
       - [queries](#queries)
+      - [schema](#schema)
 - [Основные модули SS](#Основные-модули-SS)
   - [gate](gate)
   - [http-adapter](http-adapter)
@@ -118,6 +118,7 @@ new App();
 ### Для работы с сущностью
 
 ##### controller
+Валидирует и предобрабатывает запросы. В общем, вся логика, не относящаяся к бизнес-логике.
 ```JS
 // cats-controller.js
 const {Story} = require('story-system');
@@ -139,6 +140,7 @@ module.exports = {CatsController};
 ```
 
 ##### service
+Основная бизнес-логика метода
 ```JS
 // cats-service.js
 const {Story} = require('story-system');
@@ -156,7 +158,27 @@ class CatsService {
 module.exports = {CatsService};
 ```
 
+##### queries
+SQL-запросы, необходимые для метода
+```JS
+// queries.js
+module.exports = {
+  getCats: `
+        SELECT
+             cat_id AS "catId"
+            ,cat_name AS "catName"
+        FROM
+            cats AS c
+        WHERE
+            TRUE
+            /*catId: AND cat_id = :catId*/
+        /*offset: OFFSET :offset*/
+        LIMIT :limit;`,
+};
+```
+
 ##### schema
+Схема валидации
 ```JS
 // schema.js
 const {Story: {validator: {schemaItems: {string, number, limit}}}} = require('story-system');
@@ -182,24 +204,6 @@ const getCatsSchema = {
 
 module.exports = {
   getCatsSchema,
-};
-```
-
-##### queries
-```JS
-// queries.js
-module.exports = {
-  getCats: `
-        SELECT
-             cat_id AS "catId"
-            ,cat_name AS "catName"
-        FROM
-            cats AS c
-        WHERE
-            TRUE
-            /*catId: AND cat_id = :catId*/
-        /*offset: OFFSET :offset*/
-        LIMIT :limit;`,
 };
 ```
 
