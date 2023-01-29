@@ -15,7 +15,7 @@
       - [service](#service)
       - [schema](#schema)
       - [queries](#queries)
-- [Основные модули SS](#)
+- [Основные модули SS](#Основные-модули-SS)
   - [gate](gate)
   - [http-adapter](http-adapter)
   - [ws-adapter](ws-adapter)
@@ -200,9 +200,10 @@ module.exports = {
         LIMIT :limit;`,
 };
 ```
-  
 
-## gate
+## Основные модули SS
+
+### gate
 Все запросы (http, ws, rmq) идут через gate.
 
 - Конструирует объект `controllers`, состоящий из пар {`<domain>`: `<controller>`} 
