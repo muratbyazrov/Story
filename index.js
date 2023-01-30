@@ -33,7 +33,7 @@ class Story {
         this.wsAdapter.run(request => this.gate.run(request));
 
         rmq &&
-        (this.rmqAdapter = new rmqAdapter(rmq)) &&
+        (this.rmqAdapter = new RmqAdapter(rmq)) &&
         this.rmqAdapter.run(request => this.gate.run(request));
     }
 }
