@@ -7,7 +7,7 @@ const {DbError} = require('../errors');
 class DbAdapter {
     constructor(options) {
         this.config = options;
-        this.client = new Client(this.config.db);
+        this.client = new Client(this.config);
         this.connectPostgres();
         this.runMigrations();
         this.setDbSearchPath();
@@ -18,26 +18,26 @@ class DbAdapter {
             if (err) {
                 throw new DbError(err.message);
             }
-            console.log('SYSTEM [INFO]: Connected to postgres data base');
+            logger.info('Connected to postgres data base')
         });
     }
 
     async runMigrations() {
         await exec(`/bin/sh ${__dirname}/migration-runner.sh`, (error, stdout, stderr) => {
             if (stdout) {
-                console.log('SYSTEM', stdout);
+                logger.info(stdout);
             }
             if (stderr) {
-                console.log('SYSTEM [INFO]:', stderr);
+                logger.info(stderr)
             }
             if (error !== null) {
-                console.log(`SYSTEM [ERROR]: exec error: ${error}`);
+                logger.error(`exec error: ${error}`);
             }
         });
     }
 
     async setDbSearchPath() {
-        await this.client.query(`SET SEARCH_PATH = '${this.config.db.schema}'`);
+        await this.client.query(`SET SEARCH_PATH = '${this.config.schema}'`);
     }
 
     async execQuery({queryName, params, options = {}}) {

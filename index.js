@@ -21,19 +21,19 @@ class Story {
 
     adaptersInit({db, http, ws, rmq}) {
         db &&
-        (this.dbAdapter = new DbAdapter(config)) &&
+        (this.dbAdapter = new DbAdapter(db)) &&
         this.httpAdapter.run(request => this.gate.run(request));
 
         http &&
-        (this.httpAdapter = new HttpAdapter(config)) &&
+        (this.httpAdapter = new HttpAdapter(http)) &&
         this.wsAdapter.run(request => this.gate.run(request));
 
         ws &&
-        (this.wsAdapter = new WsAdapter(config)) &&
+        (this.wsAdapter = new WsAdapter(ws)) &&
         this.wsAdapter.run(request => this.gate.run(request));
 
         rmq &&
-        (this.rmqAdapter = new rmqAdapter(config)) &&
+        (this.rmqAdapter = new rmqAdapter(rmq)) &&
         this.rmqAdapter.run(request => this.gate.run(request));
     }
 }

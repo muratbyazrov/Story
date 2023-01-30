@@ -24,20 +24,20 @@ class Gate {
                 throw new ValidationError('Request error. Maybe request is not JSON');
             }
 
-            console.info(`SYSTEM [INFO]: Got request:`, data);
+            logger.info(`Got request:${data}`)
             if (!this.controllers[data.domain]) {
-                throw new NotFoundError('Incorrect domain')
+                throw new NotFoundError('Incorrect domain');
             }
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
             validator.validate(data, gateSchema);
             const result = response.format(request, await this.controllers[data.domain][data.event](data));
-            console.info(`SYSTEM [INFO]: Send result:`, result);
+            logger.info(`Send result:${result}`);
             return result;
         } catch (err) {
             const error = response.format(request, err);
-            logger.log(error);
+            logger.error(error);
             return error;
         }
     }
