@@ -1,9 +1,9 @@
 const {utils} = require('../utils');
 const {validator} = require('../validator');
 const {logger} = require('../logger');
-const {systemResponse} = require('../system-response');
+const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
-const {ValidationError} = require('../system-errors/validation-error');
+const {ValidationError, NotFoundError} = require('../errors');
 
 class Gate {
     constructor(config, controllers) {
@@ -26,17 +26,17 @@ class Gate {
 
             console.info(`SYSTEM [INFO]: Got request:`, data);
             if (!this.controllers[data.domain]) {
-                throw new ValidationError('Incorrect domain')
+                throw new NotFoundError('Incorrect domain')
             }
             if (!this.controllers[data.domain][data.event]) {
-                throw new ValidationError('Method not found');
+                throw new NotFoundError('Method (event) not found');
             }
             validator.validate(data, gateSchema);
-            const result = systemResponse.format(request, await this.controllers[data.domain][data.event](data));
+            const result = response.format(request, await this.controllers[data.domain][data.event](data));
             console.info(`SYSTEM [INFO]: Send result:`, result);
             return result;
         } catch (err) {
-            const error = systemResponse.format(request, err);
+            const error = response.format(request, err);
             logger.log(error);
             return error;
         }

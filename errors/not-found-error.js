@@ -1,10 +1,10 @@
-class ValidationError {
+class NotFoundError {
     constructor(message) {
         this.isError = true;
         this.code = 404;
-        this.name = 'Validation Error';
+        this.name = 'Not found';
         this.message = message;
     }
 }
 
-module.exports = {ValidationError};
+module.exports = {NotFoundError};

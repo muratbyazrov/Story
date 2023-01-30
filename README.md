@@ -1,6 +1,6 @@
-## Story-System
+## Story
 
-- Story-System (далее SS) - легковесный фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
+- Story - легковесный фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
 - Работает с протоколами http, websocket, с брокером сообщений rabbitMQ и с клиентом БД - PostgreSQL
 - Использует доменно-событийную модель
 
@@ -16,7 +16,10 @@
       - [service](#service)
       - [queries](#queries)
       - [schema](#schema)
-- [Основные модули SS](#Основные-модули-SS)
+  - [Пример запроса](#Пример-запроса)
+  - [Пример ответа](#Пример-ответа)
+  - [Ошибки](#Ошибки)
+- [Основные модули Story](#Основные-модули-Story)
   - [gate](gate)
   - [http-adapter](http-adapter)
   - [ws-adapter](ws-adapter)
@@ -207,7 +210,91 @@ module.exports = {
 };
 ```
 
-## Основные модули SS
+### Пример запроса
+Вне зависимости от протокола (http, ws или rmq) запрос должен имеет один и тот же вид:
+
+```JSON
+{
+  "domain": "cats",
+  "event": "getCats",
+  "params": {
+    "limit": 5
+  },
+  "token": ""
+}
+```
+
+*Примечание* <br>
+По http всегда принимается POST-запрос. Не используйте GET, UPDATE и так далее
+
+### Пример ответа
+Успешный ответ
+
+```JSON
+{
+  "domain": "cats",
+  "event": "getCats",
+  "data": [
+    {
+      "catId": 1,
+      "catName": "Scot"
+    }
+  ]
+}
+```
+
+Ответ с ошибкой
+```JSON
+{
+    "domain": "cats",
+    "event": "getCats",
+    "error": [{
+      "code":  403,
+      "name":  "Forbidden",
+      "message":  "error message"
+    }]
+}
+```
+
+### Ошибки
+Ошибка базы данных
+```json
+{
+  "code":  900,
+  "name":  "Data Base Error",
+  "message":  "error message"
+}
+```
+
+Ошибка валидации
+```json
+{
+  "code":  400,
+  "name":  "Validation error",
+  "message":  "error message"
+}
+```
+
+Ошибка доступа
+```json
+{
+  "code":  403,
+  "name":  "Forbidden",
+  "message":  "error message"
+}
+```
+
+Ошибка NotFound
+```json
+{
+  "code":  404,
+  "name":  "Not Found",
+  "message":  "error message"
+}
+```
+
+
+## Основные модули Story
 
 ### gate
 Все запросы (http, ws, rmq) идут через gate.

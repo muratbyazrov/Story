@@ -2,7 +2,7 @@ const {utils} = require('../utils');
 const {logger} = require('../logger');
 const {Client} = require('pg');
 const {exec} = require('child_process');
-const {DbError} = require('../system-errors');
+const {DbError} = require('../errors');
 
 class DbAdapter {
     constructor(options) {

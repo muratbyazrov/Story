@@ -1,7 +1,7 @@
 const {validator} = require('./validator');
 const {logger} = require('./logger');
 const {utils} = require('./utils');
-const {systemResponse} = require('./system-response');
+const {response} = require('./response');
 const {DbAdapter} = require('./db-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
@@ -12,7 +12,7 @@ class Story {
         this.logger = logger;
         this.utils = utils;
         this.validator = validator;
-        this.systemResponse = systemResponse;
+        this.response = response;
     }
 
     gateInit(config, controllers) {

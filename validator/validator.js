@@ -1,5 +1,5 @@
 const {validate} = require('jsonschema');
-const {ValidationError} = require('../system-errors');
+const {ValidationError} = require('../errors');
 
 class Validator {
     constructor() {
