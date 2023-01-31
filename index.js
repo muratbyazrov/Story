@@ -2,11 +2,11 @@ const {validator} = require('./validator');
 const {logger} = require('./logger');
 const {utils} = require('./utils');
 const {response} = require('./response');
-const {token} = require("./token");
 const {DbAdapter} = require('./db-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {Gate} = require('./gate');
+const {Token} = require("./token");
 
 class Story {
     constructor() {
@@ -14,7 +14,10 @@ class Story {
         this.utils = utils;
         this.validator = validator;
         this.response = response;
-        this.token = token;
+    }
+
+    utilsInit(config) {
+        this.token = new Token(config);
     }
 
     gateInit(config, controllers) {

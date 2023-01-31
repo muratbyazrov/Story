@@ -28,4 +28,4 @@ class Token {
     }
 }
 
-module.exports = {token: new Token()};
+module.exports = {Token};
