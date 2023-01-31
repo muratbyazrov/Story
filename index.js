@@ -20,21 +20,19 @@ class Story {
     }
 
     adaptersInit({db, http, ws, rmq}) {
-        db &&
-        (this.dbAdapter = new DbAdapter(db)) &&
-        this.httpAdapter.run(request => this.gate.run(request));
+        db && (this.dbAdapter = new DbAdapter(db))
 
         http &&
         (this.httpAdapter = new HttpAdapter(http)) &&
-        this.wsAdapter.run(request => this.gate.run(request));
+        this.httpAdapter.run(request => this.gate.run(request));
 
         ws &&
         (this.wsAdapter = new WsAdapter(ws)) &&
         this.wsAdapter.run(request => this.gate.run(request));
 
-        rmq &&
-        (this.rmqAdapter = new RmqAdapter(rmq)) &&
-        this.rmqAdapter.run(request => this.gate.run(request));
+        // rmq &&
+        // (this.rmqAdapter = new RmqAdapter(rmq)) &&
+        // this.rmqAdapter.run(request => this.gate.run(request));
     }
 }
 
