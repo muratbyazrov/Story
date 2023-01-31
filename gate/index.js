@@ -8,6 +8,7 @@ const {token} = require("../token");
 
 class Gate {
     constructor(config, controllers) {
+        this.config = config;
         this.controllers = {};
         for (const {EntityController, domain} of controllers) {
             this.controllers[domain] = new EntityController();
@@ -32,7 +33,7 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            if(!token.checkToken(data)){
+            if(!token.checkToken(this.config, data)){
                 throw new Forbidden('Invalid token');
             }
             validator.validate(data, gateSchema);
