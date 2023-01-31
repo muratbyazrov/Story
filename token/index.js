@@ -2,19 +2,15 @@ const jwt = require('jsonwebtoken');
 const {logger} = require("../logger");
 
 class Token {
-    constructor(config) {
-        this.config = config.token;
-    }
-
-    generateToken(data) {
-        const {key, expiresIn = 24 * 60 * 60 * 1000} = this.config;
+    generateToken(config, data) {
+        const {key, expiresIn = 24 * 60 * 60 * 1000} = config;
         return jwt.sign({...data}, key, {algorithm: 'RS256', expiresIn}, (error) => {
             logger.error(error);
         });
     }
 
-    decodeToken(token) {
-        const {key} = this.config;
+    decodeToken(config, token) {
+        const {key} = config;
         return jwt.verify(token, key, {algorithm: 'RS256'}, (error) => {
             logger.error(error);
         })
@@ -28,4 +24,4 @@ class Token {
     }
 }
 
-module.exports = {Token};
+module.exports = {token: new Token()};

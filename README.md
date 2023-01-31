@@ -107,7 +107,6 @@ const {CatsController} = require('./src/entities/cats/cats-controller.js');
 
 class App {
     constructor() {
-      Story.utilsInit(config);
       Story.gateInit(config, [
         {EntityController: CatsController, domain: 'cats'},
       ]);
