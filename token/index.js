@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const {logger} = require("../logger");
+const {Forbidden} = require("../errors");
 
 class Token {
     generateToken(config, data) {
@@ -19,6 +20,9 @@ class Token {
     checkToken(config, {checkToken = true, token}) {
         if (!checkToken) {
             return;
+        }
+        if (!token) {
+            throw new Forbidden('Token must be specified');
         }
         return this.decodeToken(config, token);
     }
