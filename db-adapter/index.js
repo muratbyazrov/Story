@@ -31,7 +31,7 @@ class DbAdapter {
                 logger.info(stderr)
             }
             if (error !== null) {
-                logger.error(`exec error: ${error}`);
+                logger.error({"exec error": error});
             }
         });
     }

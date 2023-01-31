@@ -24,7 +24,7 @@ class Gate {
                 throw new ValidationError('Request error. Maybe request is not JSON');
             }
 
-            logger.info(`Got request:${data}`)
+            logger.info({"Got request": data});
             if (!this.controllers[data.domain]) {
                 throw new NotFoundError('Incorrect domain');
             }
@@ -33,7 +33,7 @@ class Gate {
             }
             validator.validate(data, gateSchema);
             const result = response.format(request, await this.controllers[data.domain][data.event](data));
-            logger.info(`Send result:${result}`);
+            logger.info({"Send result": result});
             return result;
         } catch (err) {
             const error = response.format(request, err);
