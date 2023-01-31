@@ -3,7 +3,8 @@ const {validator} = require('../validator');
 const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
-const {ValidationError, NotFoundError} = require('../errors');
+const {ValidationError, NotFoundError, Forbidden} = require('../errors');
+const {token} = require("../token");
 
 class Gate {
     constructor(config, controllers) {
@@ -30,6 +31,9 @@ class Gate {
             }
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
+            }
+            if(!token.checkToken(data)){
+                throw new Forbidden('Invalid token');
             }
             validator.validate(data, gateSchema);
             const result = response.format(request, await this.controllers[data.domain][data.event](data));

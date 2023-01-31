@@ -1,6 +1,6 @@
 {
   "name": "story-system",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "private": true,
   "dependencies": {
     "body-parser": "^1.20.0",
@@ -11,6 +11,7 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jsonschema": "^1.4.0",
+    "jsonwebtoken": "^9.0.0",
     "morgan": "~1.9.1",
     "pg": "^8.7.3",
     "psql": "^0.0.1",
