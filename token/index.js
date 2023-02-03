@@ -3,15 +3,15 @@ const {logger} = require("../logger");
 const {Forbidden} = require("../errors");
 
 class Token {
-    generateToken(config, data) {
+    async generateToken(config, data) {
         const {key, expiresIn = 24 * 60 * 60 * 1000} = config.token;
-        return jwt.sign({...data}, key, {algorithm: 'RS256', expiresIn}, (error, token) => {
-            if (token) {
-                console.log(token);
-            }
+        let generatedToken = null;
+        await jwt.sign({...data}, key, {algorithm: 'RS256', expiresIn}, (error, token) => {
+            if (token) generatedToken = token;
             logger.error(error);
             throw new Forbidden(error.message);
         });
+        return generatedToken;
     }
 
     decodeToken(config, token) {

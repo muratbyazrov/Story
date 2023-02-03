@@ -8,4 +8,9 @@ module.exports = {
     DbError,
     NotFoundError,
     Forbidden,
+    errors: {
+        NotFoundError,
+        Forbidden,
+        ValidationError,
+    }
 };

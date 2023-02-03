@@ -92,7 +92,8 @@ cats-application
     port: 9001,
   },
   token: {
-   key: 'token-key',
+    check: true, // проверять ли токен для каждого запроса. (можно настроить для конкретного запроса индивидуально)
+    key: 'token-key',
     expiresIn: '',
   },
 };

@@ -7,6 +7,7 @@ const {DbAdapter} = require('./db-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {Gate} = require('./gate');
+const {errors} = require('./errors');
 
 class Story {
     constructor() {
@@ -15,6 +16,7 @@ class Story {
         this.validator = validator;
         this.response = response;
         this.token = token;
+        this.errors = errors;
     }
 
     gateInit(config, controllers) {
