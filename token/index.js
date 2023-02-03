@@ -7,9 +7,11 @@ class Token {
         const {key, expiresIn = 24 * 60 * 60 * 1000} = config.token;
         let generatedToken = null;
         await jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
-            if (token) generatedToken = token;
-            logger.error(error);
-            throw new Forbidden(error.message);
+            if (error) {
+                logger.error(error);
+                throw new Forbidden(error.message);
+            }
+            generatedToken = token;
         });
         return generatedToken;
     }
