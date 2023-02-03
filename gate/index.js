@@ -9,7 +9,7 @@ const {token} = require("../token");
 class Gate {
     constructor(config, controllers) {
         this.config = config;
-        this.controllers = {};
+        this.controllers = {token};
         for (const {EntityController, domain} of controllers) {
             this.controllers[domain] = new EntityController();
         }
@@ -33,11 +33,11 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            if(!token.checkToken(this.config, data)){
+            if (!token.checkToken(this.config, data)) {
                 throw new Forbidden('Invalid token');
             }
             validator.validate(data, gateSchema);
-            const result = response.format(request, await this.controllers[data.domain][data.event](data));
+            const result = response.format(request, await this.controllers[data.domain][data.event](data, this.config));
             logger.info({"Send result": result});
             return result;
         } catch (err) {
