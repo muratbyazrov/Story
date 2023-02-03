@@ -24,8 +24,8 @@ class Token {
         })
     }
 
-    checkToken(config, {checkToken = true, token, domain}) {
-        if (!checkToken || domain === 'token') {
+    checkToken(config, {token, domain}) {
+        if (domain === 'token') {
             return true;
         }
         if (!token) {
