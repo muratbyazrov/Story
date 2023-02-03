@@ -6,7 +6,7 @@ class Token {
     async generateToken(config, data) {
         const {key, expiresIn = 24 * 60 * 60 * 1000} = config.token;
         let generatedToken = null;
-        await jwt.sign({...data}, key, {algorithm: 'RS256', expiresIn}, (error, token) => {
+        await jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
             if (token) generatedToken = token;
             logger.error(error);
             throw new Forbidden(error.message);
