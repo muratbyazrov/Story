@@ -93,11 +93,11 @@ cats-application
     port: 9001,
   },
   token: {
-    enabled: true, // Проверять ли токен для всех запросов
-    expiresIn: '',
-    uncheckMethods: { // Методы для которых токен не будет проверяться, несмотря на *enabled: true*
-        domain1: "event1",
-        domain1: "event2"
+    enabled: true,
+    expiresIn: 100000,
+    uncheckMethods: {
+        domain_1: "event_1",
+        domain_1: "event_2"
     }
   },
 };
