@@ -5,15 +5,15 @@ const {Forbidden} = require("../errors");
 class Token {
     async generateToken(data, config) {
         const {key, expiresIn = 24 * 60 * 60 * 1000} = config.token;
-        let generatedToken = null;
-        await jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
-            if (error) {
-                logger.error(error);
-                throw new Forbidden(error.message);
-            }
-            generatedToken = token;
+        return new Promise((resolve, reject) => {
+            jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
+                if (error) {
+                    logger.error(error);
+                    reject(new Forbidden(error.message));
+                }
+                resolve(token);
+            });
         });
-        return generatedToken;
     }
 
     decodeToken(config, token) {
