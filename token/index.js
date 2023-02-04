@@ -3,13 +3,13 @@ const {logger} = require("../logger");
 const {Forbidden} = require("../errors");
 
 class Token {
-    generateToken(data, config) {
+    async generateToken(data, config) {
         const {key, expiresIn = 24 * 60 * 60 * 1000} = config.token;
         return new Promise((resolve, reject) => {
             jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
                 if (error) {
                     logger.error(error);
-                    reject(new Forbidden(error));
+                    reject(new Forbidden(error.message));
                 }
                 resolve(token);
             });
@@ -22,11 +22,11 @@ class Token {
             jwt.verify(token, key, {algorithm: 'RS256'}, (error) => {
                 if (error) {
                     logger.error(error);
-                    reject(new Forbidden(error));
+                    reject(new Forbidden(error.message));
                 }
                 resolve(true);
             });
-        })
+        });
     }
 
     async checkToken(config, {token, domain, event}) {
@@ -39,6 +39,7 @@ class Token {
         if (!token) {
             throw new Forbidden('Token must be specified');
         }
+        await this.decodeToken(config, token);
     }
 }
 
