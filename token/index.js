@@ -25,6 +25,9 @@ class Token {
     }
 
     checkToken(config, {token, domain, event}) {
+        if (!config.token.enabled) {
+            return true;
+        }
         if (config.token.uncheckMethods[domain] === event) {
             return true;
         }
