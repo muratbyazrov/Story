@@ -33,9 +33,7 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            if (!token.checkToken(this.config, data)) {
-                throw new Forbidden('Invalid token');
-            }
+            await token.checkToken(this.config, data)
             validator.validate(data, gateSchema);
             const result = response.format(request, await this.controllers[data.domain][data.event](data, this.config));
             logger.info({"Send result": result});
