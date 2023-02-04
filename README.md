@@ -299,6 +299,60 @@ module.exports = {
 
 
 ## Работа с токеном
+Рассмотрим ещё раз конфигурационный файл и в нем настройку работы с токеном:
+```js
+{
+  token: {
+    enabled: true,
+    expiresIn: '',
+    uncheckMethods: {
+        domain1: "event1",
+        domain1: "event2"
+    }
+  },
+}
+```
+Давайте разберем подробнее каждую настройку:
+- `enabled`- *<boolean>* - если true, то у всех запросов будет проверяться токен
+- `expiresIn`- *<number>* - время жизни токена в миллисекундах. По умолчанию 24 часа Рефреш токена будет реализован в след. версиях
+- `uncheckMethods`- *<object>* - Объект с ключами которого являются домены (domain), а значениями методы (event). Для
+этих методов токен не будет проверяться, даже если будет включен флаг enabled. Обратная логика будет реализована в след.
+версиях
+
+Пример авторизации, с генерацией и возвращением токена
+```js
+    signIn(data) {
+        Story.validator.validate(data, signInSchema);
+        const [cat] = await this.accountsService.getCats(data);
+        if (!cat) {
+            throw new Story.errors.Forbidden('Нет такого кота!');
+        }
+
+        return {token: await Story.token.generateToken(cat, {token})};
+    }
+```
+Запрос
+```json
+{
+    "domain": "cats",
+    "event": "signIn",
+    "params": {
+        "login": "Jane",
+        "password": "Jane"
+    }
+}
+```
+Ответ
+```json
+{
+    "domain": "cats",
+    "event": "signIn",
+    "data": {
+        "token": "very-long-token"
+    }
+}
+```
+
 
 ## Основные модули Story
 
