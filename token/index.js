@@ -19,12 +19,12 @@ class Token {
     decodeToken(config, token) {
         const {key} = config.token;
         return new Promise((resolve, reject) => {
-            jwt.verify(token, key, {algorithm: 'RS256'}, (error) => {
+            jwt.verify(token, key, {algorithm: 'RS256'}, (error, decoded) => {
                 if (error) {
                     logger.error(error);
                     reject(new Forbidden(error.message));
                 }
-                resolve(true);
+                resolve(decoded);
             });
         });
     }
@@ -39,7 +39,7 @@ class Token {
         if (!token) {
             throw new Forbidden('Token must be specified');
         }
-        await this.decodeToken(config, token);
+        return this.decodeToken(config, token);
     }
 }
 
