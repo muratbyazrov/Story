@@ -128,8 +128,8 @@ new App();
 Валидирует и предобрабатывает запросы. В общем, вся логика, не относящаяся к бизнес-логике. <br>
 Каждый контроллер принимает два параметра:
 - data - *object* - тело запроса
-- tokenData - *object* - данные, которые были переданы при генерации токена. Таким образом можно извлечь эти данные
-и использовать в запросе
+- tokenData - *object* - данные, которые были переданы при генерации (смотрите подробнее раздел "Работа с токеном") 
+токена. Таким образом можно извлечь эти данные и использовать их в запросе
 ```JS
 // cats-controller.js
 const {Story} = require('story-system');
@@ -144,7 +144,7 @@ class CatsController {
   getCats(data, tokenData) {
     Story.validator.validate(data, getCatsSchema);
     const {catId} = tokenData;
-    console.log('Этот id кота, который был передан в функцию `genetateToken` при генерации токена');
+    console.log('${catId} - это id кота, который был передан в функцию `genetateToken` при генерации токена');
     return this.accountsService.getCats(data);
   }
 }
