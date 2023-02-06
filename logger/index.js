@@ -1,31 +1,10 @@
-const winston = require('winston');
-
 class Logger {
-    constructor() {
-        this.logger = winston.createLogger({
-            transports: [
-                new winston.transports.Console({
-                    format: winston.format.combine(
-                        winston.format.timestamp(),
-                        winston.format.json()
-                    )
-                })
-            ]
-        });
+    info(data) {
+        console.info(`(${new Date().toLocaleString()}) [INFO]: `, data);
     }
 
-    info(message, data) {
-        this.logger.info({
-            message,
-            data
-        });
-    }
-
-    error(message, error) {
-        this.logger.error({
-            message,
-            error: error.stack
-        });
+    error(error) {
+        console.error(`(${new Date().toLocaleString()}) [ERROR]: `, error);
     }
 }
 
