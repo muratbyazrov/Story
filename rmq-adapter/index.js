@@ -8,9 +8,9 @@ class RmqAdapter {
         this.queue = null;
     }
 
-    init({host = 'amqp://localhost', port = 5672, queueName = 'story', user, password}) {
+    init({host = 'localhost', port = 5672, queueName = 'story', user, password}) {
         const opt = {credentials: amqp.credentials.plain(user, password)}
-        amqp.connect(`${host}:${port}`, opt, function (error, connection) {
+        amqp.connect(`amqp://${host}:${port}`, opt, function (error, connection) {
             if (error) {
                 logger.error(error);
                 throw new RmqError(error);
