@@ -8,8 +8,13 @@ class RmqAdapter {
         this.queue = null;
     }
 
-    async init({host = 'amqp://localhost', port = 5672, queueName = 'story'}) {
-        await amqp.connect(`${host}:${port}`, function (error, connection) {
+    init({host = 'amqp://localhost', port = 5672, queueName = 'story', user, password}) {
+        const opt = {
+            credentials: require('amqplib')
+                .credentials
+                .plain(user, password),
+        };
+        amqp.connect(`${host}:${port}`, opt, function (error, connection) {
             if (error) {
                 logger.error(error);
                 throw new RmqError(error);

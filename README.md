@@ -91,7 +91,9 @@ cats-application
   rmq: {
     host: '192.168.236.109',
     port: 9001,
-    queueName: 'cats'
+    queueName: 'cats',
+    user: 'test',
+    password: 'test',
   },
   token: {
     enabled: true,
