@@ -6,8 +6,10 @@ const {token} = require("./token");
 const {DbAdapter} = require('./db-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
+const {RmqAdapter} = require('./rmq-adapter');
 const {Gate} = require('./gate');
 const {errors} = require('./errors');
+const {request} = require("express");
 
 class Story {
     constructor() {
@@ -34,9 +36,10 @@ class Story {
         (this.wsAdapter = new WsAdapter(ws)) &&
         this.wsAdapter.run(request => this.gate.run(request));
 
-        // rmq &&
-        // (this.rmqAdapter = new RmqAdapter(rmq)) &&
-        // this.rmqAdapter.run(request => this.gate.run(request));
+        rmq &&
+        (this.rmqAdapter = new RmqAdapter()) &&
+        this.rmqAdapter.init(rmq) &&
+        this.rmqAdapter.listen(request => this.gate.run(request));
     }
 }
 
