@@ -3,9 +3,10 @@ const {logger} = require("../logger");
 const {RmqError} = require("../errors/rmq-error");
 
 class RmqAdapter {
-    constructor() {
+    constructor(config) {
         this.channel = null;
         this.queue = null;
+        this.init(config);
     }
 
     init({host = 'localhost', port = 5672, queueName = 'story', user, password}) {
