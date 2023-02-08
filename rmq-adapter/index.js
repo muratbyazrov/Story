@@ -11,14 +11,14 @@ class RmqAdapter {
 
     init({host = 'localhost', port = 5672, queueName = 'story', user, password}) {
         const opt = {credentials: amqp.credentials.plain(user, password)}
-        amqp.connect(`amqp://${host}:${port}`, opt, function (error, connection) {
+        amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
                 logger.error(error);
                 throw new RmqError(error);
             }
             logger.info(`Connected to rmq with host ${host}`);
 
-            connection.createChannel(function (error, channel) {
+            connection.createChannel((error, channel) => {
                 if (error) {
                     logger.error(error);
                     throw new RmqError(error);
