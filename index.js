@@ -38,7 +38,7 @@ class Story {
 
         rmq &&
         (this.rmqAdapter = new RmqAdapter(rmq)) &&
-        this.rmqAdapter.listen(request => this.gate.run(request));
+        this.rmqAdapter.run(request => this.gate.run(request));
     }
 }
 
