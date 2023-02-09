@@ -1,4 +1,4 @@
-const amqp = require("amqplib");
+const amqp = require('amqplib/callback_api');
 const {logger} = require("../logger");
 const {RmqError} = require("../errors/rmq-error");
 
@@ -17,8 +17,7 @@ class RmqAdapter {
                 logger.error(error);
                 throw new RmqError(error);
             }
-            logger.info(`Connected to rmq with host ${host}`);
-
+            logger.info(`Connected to rmq host ${host}:${port}`);
             // listen
             connection.createChannel((error, channel) => {
                 if (error) {
@@ -31,16 +30,8 @@ class RmqAdapter {
                     logger.info(`Got rmq message ${message}`);
                     callback(message);
                     channel.ack(msg);
-                })
-            })
-
-            // for send
-            connection.createChannel((error, channel) => {
-                if (error) {
-                    logger.error(error);
-                    throw new RmqError(error);
-                }
-                channel.assertQueue(queueName);
+                });
+                // for sender
                 this.channel = channel;
                 this.queue = queueName;
             });
@@ -49,7 +40,7 @@ class RmqAdapter {
 
     send(msg) {
         try {
-            logger.info(`Send by rmq the message: ${msg}`);
+            logger.info(`Send rmq message: ${msg}`);
             this.channel.sendToQueue(this.queue, Buffer.from(msg));
         } catch (err) {
             logger.error(err.message);
