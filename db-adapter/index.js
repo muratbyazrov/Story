@@ -18,7 +18,7 @@ class DbAdapter {
             if (err) {
                 throw new DbError(err.message);
             }
-            logger.info(`Connected to postgres ${this.config.host}:${this.config.port}`);
+            logger.info(`Connected to postgres (${this.config.host}:${this.config.port})`);
         });
     }
 

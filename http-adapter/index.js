@@ -10,7 +10,7 @@ class HttpAdapter {
 
     run(callback) {
         app.listen(this.config.port, this.config.host, () => {
-            logger.info(`App listening http ${this.config.host}${this.config.port}`);
+            logger.info(`App listening http (${this.config.host}:${this.config.port})`);
         });
         app.use(bodyParser.json());
         app.post(this.config.path, async (req, res) => {

@@ -17,7 +17,7 @@ class RmqAdapter {
                 logger.error(error);
                 throw new RmqError(error);
             }
-            logger.info(`Connected to rmq ${host}:${port}`);
+            logger.info(`Connected to rmq (${host}:${port})`);
             // listen
             connection.createChannel((error, channel) => {
                 if (error) {
