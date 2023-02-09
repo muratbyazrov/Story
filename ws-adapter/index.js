@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const {v4} = require('uuid');
 const {logger} = require("../logger");
+const {response} = require("../response");
 
 class WsAdapter {
     constructor(options) {
@@ -38,11 +39,12 @@ class WsAdapter {
         }
     }
 
-    async send({sessionId = null, message = {}}) {
+    async send(message, {sessionId = null, domain = 'ws', event = 'ws'}) {
         const wsClient = this.wsClients.get(sessionId);
         logger.info({[`Send WS message to ${sessionId}`]: message});
         try {
-            wsClient && await wsClient.send(JSON.stringify(message));
+            const msg = response.format({domain, event}, message);
+            wsClient && await wsClient.send(JSON.stringify(msg));
             logger.info(`message sent to ${sessionId}`)
         } catch (error) {
             logger.error(error.message);
