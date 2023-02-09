@@ -325,6 +325,15 @@ module.exports = {
 }
 ```
 
+Ошибка с rmq
+```json
+{
+  "code":  600,
+  "name":  "RMQ error",
+  "message":  "error message"
+}
+```
+
 Ошибка валидации
 ```json
 {
