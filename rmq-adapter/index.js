@@ -9,42 +9,60 @@ class RmqAdapter {
     }
 
     run(callback) {
-        const {host = 'localhost', port = 5672, queueName = 'story', user, password} = this.config;
+        if (this.connection) {
+            return this.consume(callback);
+        }
+        const {host = 'localhost', port = 5672, user, password} = this.config;
         const opt = {credentials: amqp.credentials.plain(user, password)};
-        // connect to rabbit
         amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
                 logger.error(error);
                 throw new RmqError(error);
             }
             logger.info(`Connected to rmq (${host}:${port})`);
-            // listen
-            connection.createChannel((error, channel) => {
-                if (error) {
-                    logger.error(error.message);
-                    throw new RmqError(error);
-                }
-                channel.assertQueue(queueName);
-                channel.consume(queueName, msg => {
-                    const message = msg.content.toString();
-                    logger.info(`Got rmq message ${message}`);
-                    callback(message);
-                    channel.ack(msg);
-                });
-                // for sender
-                this.channel = channel;
-                this.queue = queueName;
-            });
+            this.connection = connection;
         });
     }
 
-    send(msg) {
-        try {
-            logger.info(`Send rmq message: ${msg}`);
-            this.channel.sendToQueue(this.queue, Buffer.from(msg));
-        } catch (err) {
-            logger.error(err.message);
-        }
+    consume(callback) {
+        const {queue, durable} = this.config.consuming;
+        this.connection.createChannel((error, channel) => {
+            if (error) {
+                logger.error(error.message);
+                throw new RmqError(error);
+            }
+            channel.assertQueue(queue, {durable});
+
+            const message = msg.content.toString();
+            logger.info(`Got rmq message ${message}`);
+            try {
+                channel.consume(consQueue, msg => {
+                    callback(message);
+                    channel.ack(msg);
+                });
+            } catch (err) {
+                logger.error(err.message);
+                channel.noAck(msg);
+            }
+
+        });
+    }
+
+    publish(msg) {
+        const {queue, durable} = this.config.publishing
+        this.connection.createChannel((error, channel) => {
+            if (error) {
+                logger.error(error.message);
+                throw new RmqError(error);
+            }
+            channel.assertQueue(queue, {durable});
+            try {
+                logger.info(`Send rmq message: ${msg}`);
+                this.channel.sendToQueue(queue, Buffer.from(msg));
+            } catch (err) {
+                logger.error(err.message);
+            }
+        });
     }
 }
 
