@@ -32,6 +32,7 @@ class RmqAdapter {
             noAck = true,
             prefetchCount = 1,
             xMessageTtl = 10 * 60 * 1000,
+            bindQueuePattern = '',
         } = this.config;
 
         this.connection.createChannel((error, channel) => {
@@ -48,7 +49,7 @@ class RmqAdapter {
             });
             channel.prefetch(prefetchCount);
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.bindQueue(queue, exchange, '');
+            channel.bindQueue(queue, exchange, bindQueuePattern);
 
             try {
                 channel.consume(queue, msg => {
