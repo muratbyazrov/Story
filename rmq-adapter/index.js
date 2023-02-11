@@ -27,9 +27,11 @@ class RmqAdapter {
             exchange = 'story',
             exchangeType = 'direct',
             queue = 'story',
-            durable = true,
+            queueDurable = true,
+            exchangeDurable = true,
             noAck = true,
             prefetchCount = 1,
+            xMessageTtl = 10 * 60 * 1000,
         } = this.config;
 
         this.connection.createChannel((error, channel) => {
@@ -38,9 +40,14 @@ class RmqAdapter {
                 throw new RmqError(error);
             }
 
-            channel.assertQueue(queue, {durable});
+            channel.assertQueue(queue, {
+                durable: queueDurable,
+                arguments: {
+                    "x-message-ttl" : xMessageTtl
+                }
+            });
             channel.prefetch(prefetchCount);
-            channel.assertExchange(exchange, exchangeType, {durable});
+            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.bindQueue(queue, exchange, '');
 
             try {
