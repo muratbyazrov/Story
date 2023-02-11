@@ -30,7 +30,8 @@ class RmqAdapter {
             durable = true,
             noAck = true,
             prefetchCount = 1,
-        } = this.config.consuming;
+        } = this.config;
+
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(error.message);
@@ -39,7 +40,6 @@ class RmqAdapter {
 
             channel.assertQueue(queue, {durable});
             channel.prefetch(prefetchCount);
-
             channel.assertExchange(exchange, exchangeType, {durable});
             channel.bindQueue(queue, exchange, '');
 
@@ -65,14 +65,13 @@ class RmqAdapter {
             persistent = true,
             durable = true
         } = options;
+
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(error.message);
                 throw new RmqError(error);
             }
-
             channel.assertExchange(exchange, exchangeType, {durable});
-
             try {
                 logger.info(`Send rmq message: ${msg}`);
                 channel.publish(exchange, queue, Buffer.from(msg), {persistent});
