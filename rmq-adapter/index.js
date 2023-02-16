@@ -27,12 +27,12 @@ class RmqAdapter {
             exchange = 'story',
             exchangeType = 'direct',
             queue = 'story',
-            queueDurable = true,
-            exchangeDurable = true,
+            queueDurable = false,
+            exchangeDurable = false,
             noAck = true,
             prefetchCount = 1,
             xMessageTtl = 10 * 60 * 1000,
-            bindQueuePattern = '',
+            bindQueuePattern = 'story',
         } = this.config;
 
         this.connection.createChannel((error, channel) => {
@@ -44,12 +44,12 @@ class RmqAdapter {
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
-                    "x-message-ttl" : xMessageTtl
+                    "x-message-ttl": xMessageTtl
                 }
             });
+            channel.bindQueue(queue, exchange, bindQueuePattern);
             channel.prefetch(prefetchCount);
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.bindQueue(queue, exchange, bindQueuePattern);
 
             try {
                 channel.consume(queue, msg => {
@@ -71,22 +71,26 @@ class RmqAdapter {
             exchangeType = 'direct',
             queue = 'story',
             persistent = true,
-            durable = true
+            exchangeDurable = false,
         } = options;
 
-        this.connection.createChannel((error, channel) => {
-            if (error) {
-                logger.error(error.message);
-                throw new RmqError(error);
-            }
-            channel.assertExchange(exchange, exchangeType, {durable});
-            try {
-                logger.info(`Send rmq message: ${msg}`);
-                channel.publish(exchange, queue, Buffer.from(msg), {persistent});
-            } catch (err) {
-                logger.error(err.message);
-            }
-        });
+        if (!this.channel) {
+            this.connection.createChannel((error, channel) => {
+                if (error) {
+                    logger.error(error.message);
+                    throw new RmqError(error);
+                }
+                channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+                this.channel = channel;
+            });
+        }
+
+        try {
+            logger.info(`Send rmq message: ${msg}`);
+            this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
+        } catch (err) {
+            logger.error(err.message);
+        }
     }
 }
 
