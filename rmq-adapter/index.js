@@ -18,8 +18,8 @@ class RmqAdapter {
             }
             logger.info(`Connected to rmq (${host}:${port})`);
             this.connection = connection;
+            this.consume(callback);
         });
-        this.consume(callback);
     }
 
     consume(callback) {
@@ -47,9 +47,9 @@ class RmqAdapter {
                     "x-message-ttl": xMessageTtl
                 }
             });
+            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.bindQueue(queue, exchange, bindQueuePattern);
             channel.prefetch(prefetchCount);
-            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
 
             try {
                 channel.consume(queue, msg => {
