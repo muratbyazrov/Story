@@ -315,29 +315,19 @@ ws, rmq. Чтобы включить/отключить протокол, дос
 Полезно, когда сервису нужно принимать сообщения в реалтайме. Можно слушать сообщения по ws и отправлять их. Вот пример
 отправки сообщения по `ws`:
 
-```js
-    async
-createMessage(data)
-{
+```JS
+async createMessage(data) {
     const message = 'Привет кот!';
     const sessionId = 'some guid';
-
-    await Story.wsAdapter.send(
-        message,
-        options
-:
-    {
+    
+    await Story.wsAdapter.send(message,
+        options: {
         sessionId,
-            domain
-    :
-        this.name,
-            event
-    :
-        'createMessage',
-    }
-)
-    ;
-
+            domain: this.name,
+            event: 'createMessage',
+        }
+    )
+    
     return message;
 }
 ```
@@ -417,17 +407,18 @@ createMessage(data)
 {
     token: {
         enabled: true,
+            key
+    :
+        'token-key',
             expiresIn
     :
-        '',
+        60 * 1000,
             uncheckMethods
     :
         {
-            domain1: "event1",
-                domain1
-        :
-            "event2"
+            accounts: 'signIn',
         }
+    ,
     }
 ,
 }
@@ -530,11 +521,12 @@ createMessage(data)
               и обработано. Иначе сообщение будет висеть в очереди. (По умолчанию `true`)
             - `prefetchCount` - Максимальное количество сообщений, принимаемых потребителем за раз. (По умолчанию `1`)
             - `bindQueuePattern` - *string* - По какому паттерну будут связываться `exchange` и `queue`
-            - `xMessageTtl` - *number* - время жизни сообщений в миллисекундах. (По умолчанию `10 минут`). После этого сообщения удаляются
-              из очереди, даже если не были акнуты
+            - `xMessageTtl` - *number* - время жизни сообщений в миллисекундах. (По умолчанию `10 минут`). После этого
+              сообщения удаляются из очереди, даже если не были акнуты
         - Создает канал `connection.createChannel`
         - В рамках канала создает очередь `channel.assertQueue`
-        - Настраивает сущность `binding`. Нужно для маршрутизации сообщений. Подробнее [тут](https://www.rabbitmq.com/tutorials/tutorial-four-javascript.html)
+        - Настраивает сущность `binding`. Нужно для маршрутизации сообщений.
+          Подробнее [тут](https://www.rabbitmq.com/tutorials/tutorial-four-javascript.html)
         - Запускает прослушку сообщений: `channel.consume`
     - `publish` - публичный метод для публикации сообщений и настраивается параметры конфига
         - Подтягивает параметры из конфига:
