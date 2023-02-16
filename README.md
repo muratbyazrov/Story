@@ -407,20 +407,12 @@ async createMessage(data) {
 {
     token: {
         enabled: true,
-            key
-    :
-        'token-key',
-            expiresIn
-    :
-        60 * 1000,
-            uncheckMethods
-    :
-        {
-            accounts: 'signIn',
-        }
-    ,
-    }
-,
+        key: 'token-key',
+        expiresIn: 60 * 1000,
+        uncheckMethods: {
+            cats: 'signIn',
+        },
+    },
 }
 ```
 
@@ -436,8 +428,7 @@ async createMessage(data) {
 Пример авторизации, с генерацией и возвращением токена
 
 ```js
-    signIn(data)
-{
+signIn(data) {
     Story.validator.validate(data, signInSchema);
     const [cat] = await this.accountsService.getCats(data);
     if (!cat) {
