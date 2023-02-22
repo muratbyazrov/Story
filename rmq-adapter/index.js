@@ -59,7 +59,7 @@ class RmqAdapter {
         });
     }
 
-    publish(msg, options = {}) {
+    publish(msg, {routingKey = ''} = {}) {
         const {
             exchange = 'story',
             exchangeType = 'direct',
@@ -67,7 +67,6 @@ class RmqAdapter {
             persistent = true,
             exchangeDurable = false,
             bindQueuePattern,
-            ...options
         } = this.config.publish;
 
         if (!this.channel) {
