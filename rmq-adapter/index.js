@@ -9,7 +9,7 @@ class RmqAdapter {
     }
 
     run(callback) {
-        const {host = 'localhost', port = 5672, user, password} = this.config;
+        const {connect: {host = 'localhost', port = 5672, user, password}} = this.config;
         const opt = {credentials: amqp.credentials.plain(user, password)};
         amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
@@ -24,15 +24,13 @@ class RmqAdapter {
 
     consume(callback) {
         const {
-            exchange = 'story',
-            exchangeType = 'direct',
-            queue = 'story',
-            queueDurable = false,
-            exchangeDurable = false,
-            noAck = true,
-            prefetchCount = 1,
-            xMessageTtl = 10 * 60 * 1000,
-            bindQueuePattern = 'story',
+            consume: {
+                queue = 'story',
+                queueDurable = false,
+                noAck = true,
+                prefetchCount = 1,
+                xMessageTtl = 10 * 60 * 1000,
+            }
         } = this.config;
 
         this.connection.createChannel((error, channel) => {
@@ -47,8 +45,6 @@ class RmqAdapter {
                     "x-message-ttl": xMessageTtl
                 }
             });
-            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.bindQueue(queue, exchange, bindQueuePattern);
             channel.prefetch(prefetchCount);
 
             try {
@@ -65,13 +61,16 @@ class RmqAdapter {
         });
     }
 
-    publish(msg, options) {
+    publish({routingKey = '', ...msg}, options) {
         const {
-            exchange = 'story',
-            exchangeType = 'direct',
-            queue = 'story',
-            persistent = true,
-            exchangeDurable = false,
+            publish: {
+                exchange = 'story',
+                exchangeType = 'direct',
+                queue = 'story',
+                persistent = true,
+                exchangeDurable = false,
+                bindQueuePattern
+            }
         } = options;
 
         if (!this.channel) {
@@ -80,6 +79,7 @@ class RmqAdapter {
                     logger.error(error.message);
                     throw new RmqError(error);
                 }
+                channel.bindQueue(queue, exchange, bindQueuePattern);
                 channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
                 this.channel = channel;
             });
