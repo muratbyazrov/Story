@@ -61,7 +61,7 @@ class RmqAdapter {
         });
     }
 
-    publish({routingKey = '', ...msg}, options) {
+    publish(msg, options) {
         const {
             publish: {
                 exchange = 'story',
@@ -69,7 +69,8 @@ class RmqAdapter {
                 queue = 'story',
                 persistent = true,
                 exchangeDurable = false,
-                bindQueuePattern
+                bindQueuePattern,
+                routingKey = 'story',
             }
         } = options;
 
