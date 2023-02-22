@@ -59,25 +59,27 @@ class RmqAdapter {
         });
     }
 
-    publish(msg, {routingKey = ''} = {}) {
+    async publish(msg, {routingKey = '', queue = 'story'}) {
         const {
             exchange = 'story',
             exchangeType = 'direct',
-            queue = 'story',
             persistent = true,
             exchangeDurable = false,
             bindQueuePattern,
         } = this.config.publish;
 
         if (!this.channel) {
-            this.connection.createChannel((error, channel) => {
-                if (error) {
-                    logger.error(error.message);
-                    throw new RmqError(error);
-                }
-                channel.bindQueue(queue, exchange, bindQueuePattern);
-                channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-                this.channel = channel;
+            this.channel = await new Promise((resolve, reject) => {
+                this.connection.createChannel((error, channel) => {
+                    if (error) {
+                        logger.error(error.message);
+                        reject(new RmqError(error.message));
+                    } else {
+                        channel.bindQueue(queue, exchange, bindQueuePattern);
+                        channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+                        resolve(channel);
+                    }
+                });
             });
         }
 
@@ -86,6 +88,7 @@ class RmqAdapter {
             this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
+            throw new RmqError(err.message);
         }
     }
 }
