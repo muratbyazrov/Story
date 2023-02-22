@@ -9,7 +9,7 @@ class RmqAdapter {
     }
 
     run(callback) {
-        const {connect: {host = 'localhost', port = 5672, user, password}} = this.config;
+        const {host = 'localhost', port = 5672, user, password} = this.config.connect;
         const opt = {credentials: amqp.credentials.plain(user, password)};
         amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
@@ -24,14 +24,12 @@ class RmqAdapter {
 
     consume(callback) {
         const {
-            consume: {
-                queue = 'story',
-                queueDurable = false,
-                noAck = true,
-                prefetchCount = 1,
-                xMessageTtl = 10 * 60 * 1000,
-            }
-        } = this.config;
+            queue = 'story',
+            queueDurable = false,
+            noAck = true,
+            prefetchCount = 1,
+            xMessageTtl = 10 * 60 * 1000,
+        } = this.config.consume;
 
         this.connection.createChannel((error, channel) => {
             if (error) {
@@ -61,18 +59,16 @@ class RmqAdapter {
         });
     }
 
-    publish(msg, options) {
+    publish(msg, options = {}) {
         const {
-            publish: {
-                exchange = 'story',
-                exchangeType = 'direct',
-                queue = 'story',
-                persistent = true,
-                exchangeDurable = false,
-                bindQueuePattern,
-                routingKey = 'story',
-            }
-        } = options;
+            exchange = 'story',
+            exchangeType = 'direct',
+            queue = 'story',
+            persistent = true,
+            exchangeDurable = false,
+            bindQueuePattern,
+            ...options
+        } = this.config.publish;
 
         if (!this.channel) {
             this.connection.createChannel((error, channel) => {
