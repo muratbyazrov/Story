@@ -158,8 +158,8 @@ new App();
 Каждый контроллер принимает два параметра:
 
 - data - *object* - тело запроса
-- tokenData - *object* - данные, которые были переданы при генерации (смотрите подробнее раздел "Работа с токеном")
-  токена. Таким образом можно извлечь эти данные и использовать их в запросе
+- tokenData - *object* - данные, которые были переданы при генерации токена. (смотрите подробнее раздел "Работа с токеном")
+Таким образом, можно извлечь эти данные и использовать их в запросе.
 
 ```JS
 // cats-controller.js
@@ -330,10 +330,10 @@ async createMessage(data) {
     
     await Story.wsAdapter.send(message,
         options: {
-        sessionId,
-            domain: this.name,
-            event: 'createMessage',
-        }
+            sessionId,
+                domain: this.name,
+                event: 'createMessage',
+            }
     )
     
     return message;
