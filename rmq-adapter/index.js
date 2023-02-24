@@ -41,7 +41,7 @@ class RmqAdapter {
                 throw new RmqError(error);
             }
             this.channel = channel;
-            
+
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
@@ -65,7 +65,12 @@ class RmqAdapter {
         });
     }
 
-    async publish(msg, {queue, exchange, persistent = true}) {
+    async publish(msg, options) {
+        if (!options || !options.exchange) {
+            throw new RmqError('options or options.exchange not specified');
+        }
+
+        const {queue, exchange, persistent = true} = options;
         try {
             logger.info(`Send rmq message: ${msg}`);
             this.channel.publish(exchange, (queue || exchange), Buffer.from(msg), {persistent});
