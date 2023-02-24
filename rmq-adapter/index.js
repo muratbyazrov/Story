@@ -6,6 +6,7 @@ class RmqAdapter {
     constructor(config) {
         this.config = config;
         this.connection = null;
+        this.channel = null;
     }
 
     run(callback) {
@@ -24,6 +25,9 @@ class RmqAdapter {
 
     consume(callback) {
         const {
+            exchange = 'story',
+            exchangeType = 'direct',
+            exchangeDurable = false,
             queue = 'story',
             queueDurable = false,
             noAck = true,
@@ -36,7 +40,8 @@ class RmqAdapter {
                 logger.error(error.message);
                 throw new RmqError(error);
             }
-
+            this.channel = channel;
+            
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
@@ -44,6 +49,7 @@ class RmqAdapter {
                 }
             });
             channel.prefetch(prefetchCount);
+            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
 
             try {
                 channel.consume(queue, msg => {
@@ -59,33 +65,10 @@ class RmqAdapter {
         });
     }
 
-    async publish(msg, {routingKey = '', queue = 'story'}) {
-        const {
-            exchange = 'story',
-            exchangeType = 'direct',
-            persistent = true,
-            exchangeDurable = false,
-            bindQueuePattern,
-        } = this.config.publish;
-
-        if (!this.channel) {
-            this.channel = await new Promise((resolve, reject) => {
-                this.connection.createChannel((error, channel) => {
-                    if (error) {
-                        logger.error(error.message);
-                        reject(new RmqError(error.message));
-                    } else {
-                        channel.bindQueue(queue, exchange, bindQueuePattern);
-                        channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-                        resolve(channel);
-                    }
-                });
-            });
-        }
-
+    async publish(msg, {queue, exchange, persistent = true}) {
         try {
             logger.info(`Send rmq message: ${msg}`);
-            this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
+            this.channel.publish(exchange, (queue || exchange), Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
             throw new RmqError(err.message);
