@@ -111,7 +111,7 @@ module.exports = {
             prefetchCount: 1,
             xMessageTtl: 10 * 60 * 1000,
         },
-        publishDomens: {
+        publishDomains: {
             dogs: {
                 exchange: 'dogs',
                 queue: 'dogs',
