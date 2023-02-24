@@ -94,19 +94,30 @@ module.exports = {
         port: 9001,
     },
     rmq: {
-        host: '192.168.236.109',
-        port: 9001,
-        user: 'test',
-        password: 'test',
-        exchange: 'story',
-        exchangeType: 'direct',
-        exchangeDurable: false,
-        queue: 'story',
-        queueDurable: false,
-        bindQueuePattern: 'story',
-        noAck: true,
-        prefetchCount: 1,
-        xMessageTtl: 10 * 60 * 1000,
+        connect: {
+            host: '127.10.10.11',
+            port: 5672,
+            queueName: 'cats',
+            user: 'test',
+            password: 'test',
+        },
+        consume: {
+            exchange: 'cats',
+            exchangeType: 'direct',
+            exchangeDurable: false,
+            queue: 'cats',
+            queueDurable: false,
+            noAck: true,
+            prefetchCount: 1,
+            xMessageTtl: 10 * 60 * 1000,
+        },
+        publishDomens: {
+            dogs: {
+                exchange: 'dogs',
+                queue: 'dogs',
+                persistent: false,
+            }
+        },
     },
     token: {
         enabled: true,
