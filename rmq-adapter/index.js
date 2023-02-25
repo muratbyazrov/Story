@@ -45,8 +45,6 @@ class RmqAdapter {
             }
             this.channel = channel;
 
-            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.bindQueue(queue, exchange, bindPattern);
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
@@ -54,6 +52,8 @@ class RmqAdapter {
                 }
             });
             channel.prefetch(prefetchCount);
+            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+            channel.bindQueue(queue, exchange, bindPattern);
 
             try {
                 channel.consume(queue, msg => {
