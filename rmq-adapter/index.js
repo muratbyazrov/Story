@@ -45,27 +45,32 @@ class RmqAdapter {
             }
             this.channel = channel;
 
-            channel.assertQueue(queue, {
-                durable: queueDurable,
-                arguments: {
-                    "x-message-ttl": xMessageTtl
-                }
-            });
-            channel.prefetch(prefetchCount);
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.bindQueue(queue, exchange, bindPattern);
-
-            try {
-                channel.consume(queue, msg => {
-                    const message = msg.content.toString();
-                    logger.info(`Got rmq message ${message}`);
-                    callback(message);
-                    channel.ack(msg);
-                }, {noAck});
-            } catch (err) {
-                logger.error(err.message);
-            }
-
+            channel.assertQueue(queue, {
+                    durable: queueDurable,
+                    arguments: {
+                        "x-message-ttl": xMessageTtl
+                    }
+                },
+                (error, q) => {
+                    if (error) {
+                        throw new RmqError(error.message);
+                    }
+                    logger.info('waiting the messages');
+                    channel.bindQueue(q.queue, exchange, bindPattern)
+                    try {
+                        channel.consume(queue, msg => {
+                            const message = msg.content.toString();
+                            logger.info(`Got rmq message ${message}`);
+                            callback(message);
+                            channel.ack(msg);
+                        }, {noAck});
+                    } catch (err) {
+                        logger.error(err.message);
+                    }
+                },
+            );
+            channel.prefetch(prefetchCount);
         });
     }
 
