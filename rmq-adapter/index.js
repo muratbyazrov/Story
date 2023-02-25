@@ -62,7 +62,7 @@ class RmqAdapter {
                             const message = msg.content.toString();
                             logger.info(`Got rmq message ${message}`);
                             callback(message);
-                            // channel.ack(msg);
+                            channel.ack(msg);
                         }, {noAck});
                     } catch (err) {
                         logger.error(err.message);
