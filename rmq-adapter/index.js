@@ -25,15 +25,17 @@ class RmqAdapter {
 
     consume(callback) {
         const {
-            exchange = 'story',
-            exchangeType = 'fanout',
-            exchangeDurable = false,
-            bindPattern = '',
-            queue = '',
-            queueDurable = false,
-            noAck = true,
-            prefetchCount = 1,
-            xMessageTtl = 10 * 60 * 1000,
+            consume: {
+                exchange = 'story',
+                exchangeType = 'fanout',
+                exchangeDurable = false,
+                bindPattern = '',
+                queue = '',
+                queueDurable = false,
+                noAck = true,
+                prefetchCount = 1,
+                xMessageTtl = 10 * 60 * 1000,
+            } = {},
         } = this.config.consume;
 
         this.connection.createChannel((error, channel) => {
@@ -73,7 +75,7 @@ class RmqAdapter {
         }
 
         const {queue = '', exchange} = options;
-        const {persistent = true} = this.config.consume;
+        const {publish: {persistent} = {}} = this.config;
         try {
             logger.info(`Send rmq message: ${msg}`);
             this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
