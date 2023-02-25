@@ -47,6 +47,7 @@ class RmqAdapter {
 
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.assertQueue(queue, {
+                    exclusive: true,
                     durable: queueDurable,
                     arguments: {
                         "x-message-ttl": xMessageTtl
@@ -56,10 +57,9 @@ class RmqAdapter {
                     if (error) {
                         throw new RmqError(error.message);
                     }
-                    logger.info('waiting the messages');
                     channel.bindQueue(q.queue, exchange, bindPattern)
                     try {
-                        channel.consume(queue, msg => {
+                        channel.consume(q.queue, msg => {
                             const message = msg.content.toString();
                             logger.info(`Got rmq message ${message}`);
                             callback(message);
