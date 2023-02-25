@@ -70,7 +70,8 @@ class RmqAdapter {
             throw new RmqError('options or options.exchange not specified');
         }
 
-        const {queue, exchange, persistent = true} = options;
+        const {queue, exchange} = options;
+        const {persistent = true} = this.config.consume;
         try {
             logger.info(`Send rmq message: ${msg}`);
             this.channel.publish(exchange, (queue || exchange), Buffer.from(msg), {persistent});
