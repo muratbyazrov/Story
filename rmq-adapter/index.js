@@ -32,7 +32,7 @@ class RmqAdapter {
                 bindPattern = '',
                 queue = '',
                 queueDurable = false,
-                noAck = true,
+                noAck = false,
                 prefetchCount = 1,
                 xMessageTtl = 10 * 60 * 1000,
             } = {},
@@ -78,11 +78,11 @@ class RmqAdapter {
             throw new RmqError('options or options.exchange not specified');
         }
 
-        const {queue = '', exchange} = options;
+        const {exchange, routingKey = ''} = options;
         const {publish: {persistent = false} = {}} = this.config;
         try {
             logger.info(`Send rmq message: ${msg}`);
-            this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
+            this.channel.publish(exchange, routingKey, Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
             throw new RmqError(err.message);
