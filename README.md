@@ -111,12 +111,12 @@ module.exports = {
         },
         publish: {
           persistent: true,
-        },
-        publishDomains: {
+          domains: {
             dogs: {
-                exchange: 'story',
-                routingKey: 'account',
-            }
+              exchange: 'story',
+              routingKey: 'account',
+            }  
+          }
         },
     },
     token: {
