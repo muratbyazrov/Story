@@ -75,7 +75,7 @@ class RmqAdapter {
         }
 
         const {queue = '', exchange} = options;
-        const {publish: {persistent} = {}} = this.config;
+        const {publish: {persistent = false} = {}} = this.config;
         try {
             logger.info(`Send rmq message: ${msg}`);
             this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
