@@ -26,9 +26,10 @@ class RmqAdapter {
     consume(callback) {
         const {
             exchange = 'story',
-            exchangeType = 'direct',
+            exchangeType = 'fanout',
             exchangeDurable = false,
-            queue = 'story',
+            bindPattern = '',
+            queue = '',
             queueDurable = false,
             noAck = true,
             prefetchCount = 1,
@@ -42,6 +43,8 @@ class RmqAdapter {
             }
             this.channel = channel;
 
+            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+            channel.bindQueue(queue, exchange, bindPattern);
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
@@ -49,7 +52,6 @@ class RmqAdapter {
                 }
             });
             channel.prefetch(prefetchCount);
-            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
 
             try {
                 channel.consume(queue, msg => {
@@ -70,11 +72,11 @@ class RmqAdapter {
             throw new RmqError('options or options.exchange not specified');
         }
 
-        const {queue, exchange} = options;
+        const {queue = '', exchange} = options;
         const {persistent = true} = this.config.consume;
         try {
             logger.info(`Send rmq message: ${msg}`);
-            this.channel.publish(exchange, (queue || exchange), Buffer.from(msg), {persistent});
+            this.channel.publish(exchange, queue, Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
             throw new RmqError(err.message);
