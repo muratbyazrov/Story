@@ -61,9 +61,10 @@ class RmqAdapter {
                     channel.bindQueue(q.queue, exchange, bindPattern)
                     try {
                         channel.consume(q.queue, msg => {
-                            const {message, signature} = msg.content.toString();
-                            signature === this.signature && selfAck && channel.ack(msg);
-                            logger.info(`Got rmq message ${message}`);
+                            const {message, signature} = JSON.parse(msg.content.toString());
+                            if (signature === this.signature && selfAck) {
+                                return channel.ack(msg);
+                            }
                             callback(message);
                             channel.ack(msg);
                         }, {noAck});
@@ -82,12 +83,10 @@ class RmqAdapter {
         }
         const {exchange, routingKey = ''} = options;
         const {publish: {persistent = false} = {}} = this.config;
+        const msg = JSON.stringify({message, signature: this.signature});
         try {
-            logger.info(`Send rmq message: ${message}`);
-            this.channel.publish(exchange, routingKey, Buffer.from({
-                message,
-                signature: this.signature
-            }.toString()), {persistent});
+            logger.info({'Send rmq message': message});
+            this.channel.publish(exchange, routingKey, Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
             throw new RmqError(err.message);
