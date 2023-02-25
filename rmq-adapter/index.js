@@ -36,7 +36,7 @@ class RmqAdapter {
                 prefetchCount = 1,
                 xMessageTtl = 10 * 60 * 1000,
             } = {},
-        } = this.config.consume;
+        } = this.config;
 
         this.connection.createChannel((error, channel) => {
             if (error) {
@@ -47,7 +47,6 @@ class RmqAdapter {
 
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.assertQueue(queue, {
-                    exclusive: true,
                     durable: queueDurable,
                     arguments: {
                         "x-message-ttl": xMessageTtl
@@ -63,7 +62,7 @@ class RmqAdapter {
                             const message = msg.content.toString();
                             logger.info(`Got rmq message ${message}`);
                             callback(message);
-                            channel.ack(msg);
+                            // channel.ack(msg);
                         }, {noAck});
                     } catch (err) {
                         logger.error(err.message);
