@@ -1,12 +1,14 @@
 const amqp = require('amqplib/callback_api');
 const {logger} = require("../logger");
 const {RmqError} = require("../errors/rmq-error");
+const {v4} = require('uuid');
 
 class RmqAdapter {
     constructor(config) {
         this.config = config;
         this.connection = null;
         this.channel = null;
+        this.signature = v4();
     }
 
     run(callback) {
@@ -35,6 +37,7 @@ class RmqAdapter {
                 noAck = false,
                 prefetchCount = 1,
                 xMessageTtl = 10 * 60 * 1000,
+                selfAck = true,
             } = {},
         } = this.config;
 
@@ -44,7 +47,6 @@ class RmqAdapter {
                 throw new RmqError(error);
             }
             this.channel = channel;
-
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.assertQueue(queue, {
                     durable: queueDurable,
@@ -59,7 +61,8 @@ class RmqAdapter {
                     channel.bindQueue(q.queue, exchange, bindPattern)
                     try {
                         channel.consume(q.queue, msg => {
-                            const message = msg.content.toString();
+                            const {message, options: {signature}} = msg.content.toString();
+                            signature === this.signature && selfAck && channel.ack(msg);
                             logger.info(`Got rmq message ${message}`);
                             callback(message);
                             channel.ack(msg);
@@ -73,16 +76,18 @@ class RmqAdapter {
         });
     }
 
-    async publish(msg, options) {
+    async publish({message, options}) {
         if (!options || !options.exchange) {
             throw new RmqError('options or options.exchange not specified');
         }
-
         const {exchange, routingKey = ''} = options;
         const {publish: {persistent = false} = {}} = this.config;
         try {
-            logger.info(`Send rmq message: ${msg}`);
-            this.channel.publish(exchange, routingKey, Buffer.from(msg), {persistent});
+            logger.info(`Send rmq message: ${message}`);
+            this.channel.publish(exchange, routingKey, Buffer.from({
+                message,
+                options: {...options, signature: this.signature}
+            }), {persistent});
         } catch (err) {
             logger.error(err.message);
             throw new RmqError(err.message);
