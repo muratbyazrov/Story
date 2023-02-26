@@ -65,7 +65,7 @@ class RmqAdapter {
                             if (signature === this.signature && selfAck) {
                                 return channel.ack(msg);
                             }
-                            callback(message, 'rmq');
+                            callback(message);
                             channel.ack(msg);
                         }, {noAck});
                     } catch (err) {
