@@ -36,7 +36,7 @@ class Gate {
             validator.validate(data, gateSchema);
             const tokenData = await token.checkToken(this.config, data);
             const result = response.format(request, await this.controllers[data.domain][data.event](data, tokenData));
-            logger.info({"Send result": result});
+            logger.info({[`Send ${protocol} response`]: result});
             return result;
         } catch (err) {
             const error = response.format(request, err);

@@ -45,7 +45,6 @@ class WsAdapter {
         try {
             const msg = response.format({domain, event}, message);
             wsClient && await wsClient.send(JSON.stringify(msg));
-            logger.info(`message sent to ${sessionId}`)
         } catch (error) {
             logger.error(error.message);
         }
