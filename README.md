@@ -386,6 +386,21 @@ async createMessage(data) {
     },
 }
 ```
+Пример публикации сообщения в rmq
+```js
+const {token, rmq: {publish: {exchanges}}} = require('../../../config');
+
+async function publishCatInRmq() {
+    await Story.rmqAdapter.publish({
+        message: {
+            domain: 'messages',
+            event: 'test',
+            data: {},
+        },
+        options: exchanges.dogs,
+    });
+}
+```
 
 
 ### Ошибки
