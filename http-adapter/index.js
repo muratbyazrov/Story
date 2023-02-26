@@ -15,7 +15,7 @@ class HttpAdapter {
         app.use(bodyParser.json());
         app.post(this.config.path, async (req, res) => {
             try {
-                res.send(await callback(req.body));
+                res.send(await callback(req.body, 'http'));
             } catch (err) {
                 res.send(err);
             }

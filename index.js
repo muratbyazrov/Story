@@ -26,7 +26,8 @@ class Story {
     }
 
     adaptersInit({db, http, ws, rmq}) {
-        db && (this.dbAdapter = new DbAdapter(db))
+        db &&
+        (this.dbAdapter = new DbAdapter(db));
 
         http &&
         (this.httpAdapter = new HttpAdapter(http)) &&

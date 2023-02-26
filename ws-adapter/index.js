@@ -22,7 +22,7 @@ class WsAdapter {
                 // 2. callback
                 try {
                     wsClient.on('message', async message => {
-                        wsClient.send(JSON.stringify(await callback(message.toString())));
+                        wsClient.send(JSON.stringify(await callback(message.toString(), 'ws')));
                     });
                 } catch (error) {
                     wsClient.send(`${new Date().toLocaleString()} | ${error.message}`);

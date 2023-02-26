@@ -58,14 +58,14 @@ class RmqAdapter {
                     if (error) {
                         throw new RmqError(error.message);
                     }
-                    channel.bindQueue(q.queue, exchange, bindPattern)
+                    channel.bindQueue(q.queue, exchange, bindPattern);
                     try {
                         channel.consume(q.queue, msg => {
                             const {message, signature} = JSON.parse(msg.content.toString());
                             if (signature === this.signature && selfAck) {
                                 return channel.ack(msg);
                             }
-                            callback(message);
+                            callback(message, 'rmq');
                             channel.ack(msg);
                         }, {noAck});
                     } catch (err) {

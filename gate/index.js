@@ -15,7 +15,7 @@ class Gate {
         }
     }
 
-    async run(request) {
+    async run(request, protocol) {
         try {
             let data;
             if (utils.isObject(request)) {
@@ -26,7 +26,7 @@ class Gate {
                 throw new ValidationError('Request error. Maybe request is not JSON');
             }
 
-            logger.info({"Got request": data});
+            logger.info({[`Got ${protocol} request`]: data});
             if (!this.controllers[data.domain]) {
                 throw new NotFoundError('Incorrect domain');
             }
