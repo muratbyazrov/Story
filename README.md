@@ -404,7 +404,6 @@ async function publishCatInRmq() {
 
 ### Ошибки
 Ошибка базы данных
-
 ```json
 {
   "code": 900,
@@ -414,7 +413,6 @@ async function publishCatInRmq() {
 ```
 
 Ошибка rmq
-
 ```json
 {
   "code": 600,
@@ -424,7 +422,6 @@ async function publishCatInRmq() {
 ```
 
 Ошибка валидации
-
 ```json
 {
   "code": 400,
@@ -433,8 +430,16 @@ async function publishCatInRmq() {
 }
 ```
 
-Ошибка доступа
+Ошибка токена
+```json
+{
+  "code": 800,
+  "name": "Token error",
+  "message": "error message"
+}
+```
 
+Ошибка доступа
 ```json
 {
   "code": 403,
@@ -444,7 +449,6 @@ async function publishCatInRmq() {
 ```
 
 Ошибка NotFound
-
 ```json
 {
   "code": 404,
