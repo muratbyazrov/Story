@@ -3,7 +3,7 @@ const {validator} = require('../validator');
 const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
-const {ValidationError, NotFoundError, Forbidden} = require('../errors');
+const {ValidationError, NotFoundError} = require('../errors');
 const {token} = require("../token");
 
 class Gate {
