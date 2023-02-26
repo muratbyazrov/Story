@@ -402,7 +402,6 @@ async function publishCatInRmq() {
 }
 ```
 
-
 ### Ошибки
 Ошибка базы данных
 
