@@ -85,7 +85,7 @@ class RmqAdapter {
         const {publish: {persistent = false} = {}} = this.config;
         const msg = JSON.stringify({message, signature: this.signature});
         try {
-            logger.info({'Send rmq message': message});
+            logger.info({'Send rmq request': message});
             this.channel.publish(exchange, routingKey, Buffer.from(msg), {persistent});
         } catch (err) {
             logger.error(err.message);
