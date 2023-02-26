@@ -31,15 +31,15 @@ class Story {
 
         http &&
         (this.httpAdapter = new HttpAdapter(http)) &&
-        this.httpAdapter.run(request => this.gate.run(request));
+        this.httpAdapter.run(request => this.gate.run(request, 'http'));
 
         ws &&
         (this.wsAdapter = new WsAdapter(ws)) &&
-        this.wsAdapter.run(request => this.gate.run(request));
+        this.wsAdapter.run(request => this.gate.run(request, 'ws'));
 
         rmq &&
         (this.rmqAdapter = new RmqAdapter(rmq)) &&
-        this.rmqAdapter.run(request => this.gate.run(request));
+        this.rmqAdapter.run(request => this.gate.run(request, 'rmq'));
     }
 }
 
