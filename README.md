@@ -388,7 +388,7 @@ async createMessage(data) {
 ```
 Пример публикации сообщения в rmq
 ```js
-const {token, rmq: {publish: {exchanges}}} = require('../../../config');
+const {rmq: {publish: {exchanges}}} = require('../../../config');
 
 async function publishCatInRmq() {
     await Story.rmqAdapter.publish({
@@ -485,14 +485,16 @@ async function publishCatInRmq() {
 Пример авторизации, с генерацией и возвращением токена
 
 ```js
+const config = require('../../../config');
+
 signIn(data) {
     Story.validator.validate(data, signInSchema);
     const [cat] = await this.accountsService.getCats(data);
     if (!cat) {
         throw new Story.errors.Forbidden('Нет такого кота!');
     }
-
-    return {token: await Story.token.generateToken(cat, {token})};
+    
+    return {token: await Story.token.generateToken(account, config.token)};
 }
 ```
 
