@@ -323,14 +323,12 @@ module.exports = {
 async createMessage(data) {
     const message = 'Привет кот!';
     const sessionId = 'some guid';
-    
-    await Story.wsAdapter.send(message,
-        options: {
-            sessionId,
-                domain: this.name,
-                event: 'createMessage',
-            }
-    )
+
+    await Story.wsAdapter.send(message, {
+        sessionId,
+        domain: 'cats',
+        event: 'catCreated',
+    });
     
     return message;
 }
