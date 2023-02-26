@@ -388,14 +388,15 @@ async createMessage(data) {
 ```
 Пример публикации сообщения в rmq
 ```js
-const {rmq: {publish: {exchanges}}} = require('../../../config');
+const {rmq: {publish: {exchanges}}, token} = require('../../../config');
 
 async function publishCatInRmq() {
     await Story.rmqAdapter.publish({
         message: {
             domain: 'messages',
             event: 'test',
-            data: {},
+            params: {},
+            token: await Story.token.generateToken({}, token),
         },
         options: exchanges.dogs,
     });
