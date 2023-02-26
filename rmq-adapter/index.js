@@ -7,7 +7,7 @@ class RmqAdapter {
         this.config = config;
         this.connection = null;
         this.channel = null;
-        this.signature = {...config.consume.exchange, ...config.consume.queue}.toString();
+        this.signature = config.consume.toString();
     }
 
     run(callback) {
