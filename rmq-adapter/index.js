@@ -1,14 +1,13 @@
 const amqp = require('amqplib/callback_api');
 const {logger} = require("../logger");
 const {RmqError} = require("../errors/rmq-error");
-const {v4} = require('uuid');
 
 class RmqAdapter {
     constructor(config) {
         this.config = config;
         this.connection = null;
         this.channel = null;
-        this.signature = v4();
+        this.signature = {...config.consume.exchange, ...config.consume.queue}.toString();
     }
 
     run(callback) {
