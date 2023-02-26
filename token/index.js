@@ -34,7 +34,7 @@ class Token {
         if (!config.token.enabled) {
             return true;
         }
-        if (config.token.uncheckMethods[domain] === event) {
+        if (config.token.uncheckMethods && config.token.uncheckMethods[domain] === event) {
             return true;
         }
         if (!token) {
