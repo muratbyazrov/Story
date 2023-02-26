@@ -1,7 +1,7 @@
 class TokenError {
     constructor(message) {
         this.isError = true;
-        this.code = 900;
+        this.code = 800;
         this.name = 'Token error';
         this.message = message;
     }
