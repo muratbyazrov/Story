@@ -11,7 +11,7 @@ class RmqAdapter {
     }
 
     run(callback) {
-        const {host = 'localhost', port = 5672, user, password} = this.config.connect;
+        const {connect: {host = 'localhost', port = 5672, user = 'story', password = 'story'} = {}} = this.config;
         const opt = {credentials: amqp.credentials.plain(user, password)};
         amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
