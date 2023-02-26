@@ -7,7 +7,7 @@ class RmqAdapter {
         this.config = config;
         this.connection = null;
         this.channel = null;
-        this.signature = config.consume.toString();
+        this.signature = null;
     }
 
     run(callback) {
@@ -40,6 +40,7 @@ class RmqAdapter {
             } = {},
         } = this.config;
 
+        selfAck && (this.signature = exchange +  queue);
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(error.message);
