@@ -1,6 +1,6 @@
 {
   "name": "story-system",
-  "version": "0.0.89",
+  "version": "0.0.90",
   "private": true,
   "dependencies": {
     "amqplib": "^0.10.3",
@@ -14,6 +14,7 @@
     "jsonschema": "^1.4.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "~1.9.1",
+    "multer": "^1.4.5-lts.1",
     "pg": "^8.7.3",
     "psql": "^0.0.1",
     "pug": "2.0.0-beta11",
