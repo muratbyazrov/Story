@@ -40,7 +40,7 @@ class Gate {
             return result;
         } catch (err) {
             const error = response.format(request, err);
-            logger.error(error);
+            logger.error({[`Send ${protocol} error`]: error});
             return error;
         }
     }
