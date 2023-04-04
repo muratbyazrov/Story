@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const multer = require('multer');
+const path = require('path');
 
 class HttpAdapter {
     constructor(options) {
@@ -16,17 +17,18 @@ class HttpAdapter {
         app.use(bodyParser.json());
         app.post(this.config.path, async (req, res) => res.send(await callback(req.body)));
 
-        const uploadPath = this.config.uploadsPath || `${this.config.path}/uploads`;
+        const {uploadsPath = `${this.config.path}/uploads`, downloadsPath = `${this.config.path}/downloads`} = this.config;
         const upload = multer({dest: 'uploads/'}).any();
-        app.use(uploadPath, async (req, res, next) => {
+        app.use(uploadsPath, async (req, res, next) => {
             const result = await callback({...req.headers, params: {}});
             result.error && res.send(result);
             next();
         });
-        app.post(uploadPath, upload, async (req, res) => {
+        app.post(uploadsPath, upload, async (req, res) => {
             const {domain, event, token} = req.headers;
             res.send(await callback({domain, event, token, params: {files: req.files}}));
         });
+        app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
     }
 }
 
