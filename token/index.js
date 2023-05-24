@@ -29,7 +29,7 @@ class Token {
 
     async checkToken(config, {token, domain, event}) {
         if (!config.token.enabled) return true;
-        if (config.token.uncheckMethods && config.token.uncheckMethods[domain] === event) return true;
+        if (config.token.uncheckMethods && config.token.uncheckMethods[domain].includes(event)) return true;
 
         if (!token) {
             throw new TokenError('Token must be specified');
