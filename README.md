@@ -128,8 +128,8 @@ module.exports = {
         enabled: true,
         expiresIn: 100000,
         uncheckMethods: {
-            domain_1: "event_1",
-            domain_1: "event_2"
+            domain_1: ["event_1", "event_2"],
+            domain_2: ["event_1", "event_2"],
         }
     },
 };
