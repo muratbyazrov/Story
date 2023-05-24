@@ -470,7 +470,7 @@ async function publishCatInRmq() {
         key: 'token-key',
         expiresIn: 60 * 1000,
         uncheckMethods: {
-            cats: 'signIn',
+            cats: ['signIn', 'creteCat'],
         },
     },
 }
@@ -481,7 +481,7 @@ async function publishCatInRmq() {
 - `enabled`- *boolean* - если true, то у всех запросов будет проверяться токен
 - `expiresIn`- *number* - время жизни токена в миллисекундах. По умолчанию 24 часа Рефреш токена будет реализован в
   след. версиях
-- `uncheckMethods`- *object* - Объект ключами которого являются домены (`domain`), а значениями методы (`event`). Для
+- `uncheckMethods`- *object* - Объект ключами которого являются домены (`domain`), а значениям - массив методов (`event`). Для
   этих методов токен не будет проверяться, даже если будет включен флаг enabled. Обратная логика будет реализована в
   след. версиях
 
