@@ -25,56 +25,60 @@ class RmqAdapter {
     }
 
     consume(callback) {
-        const {
-            consume: {
-                exchange = 'story',
-                exchangeType = 'fanout',
-                exchangeDurable = false,
-                bindPattern = '',
-                queue = '',
-                queueDurable = false,
-                noAck = false,
-                prefetchCount = 1,
-                xMessageTtl = 10 * 60 * 1000,
-                selfAck = true,
-            } = {},
-        } = this.config;
+        const {consumes} = this.config;
 
-        selfAck && (this.signature = exchange +  queue);
-        this.connection.createChannel((error, channel) => {
-            if (error) {
-                logger.error(error.message);
-                throw new RmqError(error);
-            }
-            this.channel = channel;
-            channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            channel.assertQueue(queue, {
-                    durable: queueDurable,
-                    arguments: {
-                        "x-message-ttl": xMessageTtl
-                    }
-                },
-                (error, q) => {
-                    if (error) {
-                        throw new RmqError(error.message);
-                    }
-                    channel.bindQueue(q.queue, exchange, bindPattern);
-                    try {
-                        channel.consume(q.queue, msg => {
-                            const {message, signature} = JSON.parse(msg.content.toString());
-                            if (signature === this.signature && selfAck) {
-                                return channel.ack(msg);
-                            }
-                            callback(message);
-                            channel.ack(msg);
-                        }, {noAck});
-                    } catch (err) {
-                        logger.error(err.message);
-                    }
-                },
-            );
-            channel.prefetch(prefetchCount);
-        });
+        for (const consume of consumes) {
+            const {
+                consume: {
+                    exchange = 'story',
+                    exchangeType = 'fanout',
+                    exchangeDurable = false,
+                    bindPattern = '',
+                    queue = '',
+                    queueDurable = false,
+                    noAck = false,
+                    prefetchCount = 1,
+                    xMessageTtl = 10 * 60 * 1000,
+                    selfAck = true,
+                } = {},
+            } = this.config;
+
+            selfAck && (this.signature = exchange + queue);
+            this.connection.createChannel((error, channel) => {
+                if (error) {
+                    logger.error(error.message);
+                    throw new RmqError(error);
+                }
+                this.channel = channel;
+                channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+                channel.assertQueue(queue, {
+                        durable: queueDurable,
+                        arguments: {
+                            "x-message-ttl": xMessageTtl
+                        }
+                    },
+                    (error, q) => {
+                        if (error) {
+                            throw new RmqError(error.message);
+                        }
+                        channel.bindQueue(q.queue, exchange, bindPattern);
+                        try {
+                            channel.consume(q.queue, msg => {
+                                const {message, signature} = JSON.parse(msg.content.toString());
+                                if (signature === this.signature && selfAck) {
+                                    return channel.ack(msg);
+                                }
+                                callback(message);
+                                channel.ack(msg);
+                            }, {noAck});
+                        } catch (err) {
+                            logger.error(err.message);
+                        }
+                    },
+                );
+                channel.prefetch(prefetchCount);
+            });
+        }
     }
 
     async publish({message, options}) {
