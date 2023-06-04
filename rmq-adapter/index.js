@@ -41,7 +41,7 @@ class RmqAdapter {
                     xMessageTtl = 10 * 60 * 1000,
                     selfAck = true,
                 } = {},
-            } = this.config;
+            } = consume;
 
             selfAck && (this.signature = exchange + queue);
             this.connection.createChannel((error, channel) => {
