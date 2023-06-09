@@ -9,7 +9,6 @@ const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
 const {Gate} = require('./gate');
 const {errors} = require('./errors');
-const {request} = require("express");
 
 class Story {
     constructor() {
