@@ -1,7 +1,9 @@
+const {utils} = require('../utils');
+
 class Logger {
-    info(data) {
-        const {token = '***', ..._data} = data;
-        console.info(`(${new Date().toLocaleString()}) [INFO]: `, {token, ..._data});
+    info(data) {``
+        const overrideData = utils.overrideObjectField(data, 'token', '***');
+        console.info(`(${new Date().toLocaleString()}) [INFO]: `, overrideData);
     }
 
     error(error) {
