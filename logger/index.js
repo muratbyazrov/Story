@@ -1,7 +1,7 @@
 class Logger {
     info(data) {
         const {token = '***', ..._data} = data;
-        console.info(`(${new Date().toLocaleString()}) [INFO]: `, {token, _data});
+        console.info(`(${new Date().toLocaleString()}) [INFO]: `, {token, ..._data});
     }
 
     error(error) {
