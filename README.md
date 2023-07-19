@@ -20,6 +20,7 @@
     - [http](#http)
     - [websockets](#websockets)
     - [rmq](#rmq)
+- [Работа с БД](#Работа-с-бд)
 - [Работа с токеном](#Работа-с-токеном)
 - [Ошибки](#Ошибки)
 - [Основные модули Story](#Основные-модули-Story)
@@ -458,6 +459,20 @@ async function publishCatInRmq() {
   "name": "Not Found",
   "message": "error message"
 }
+```
+
+## Работа с БД
+
+- Сейчас Story поддерживает только Postgres
+
+```shell
+# Создать миграцию миграции
+db-migrate create <название миграции> --config ./database.development.json -e pg -m ./migrations --sql-file
+```
+
+```shell
+# Накатить миграцию
+db-migrate up --config ./database.development.json -e pg -m ./migrations
 ```
 
 ## Работа с токеном
