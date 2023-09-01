@@ -467,7 +467,7 @@ async function publishCatInRmq() {
 
 ```shell
 # Создать миграцию миграции
-db-migrate create <название миграции> --config ./database.development.json -e pg -m ./migrations --sql-file
+db-migrate create <название миграции> --config ./database.json -e pg -m ./migrations --sql-file
 ```
 
 ```shell
