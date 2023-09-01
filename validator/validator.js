@@ -13,6 +13,7 @@ class Validator {
             array: {type: 'array'},
             array1: {type: 'array', minItems: 1},
             boolean: {type: 'boolean'},
+            empty: {type: 'null'},
         };
     }
 
