@@ -11,6 +11,7 @@ class FileProcessor {
 
     run({protocol, callback}) {
         protocol === 'http' && this.httpFileProcessor(callback);
+        console.log('>>>>>>>>>>>>>>>>FileProcessor')
     }
 
     httpFileProcessor(callback) {
