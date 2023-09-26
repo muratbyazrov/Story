@@ -5,9 +5,9 @@ const {exec} = require('child_process');
 const {DbError} = require('../errors');
 
 class DbAdapter {
-    constructor(options) {
-        this.config = options;
-        this.client = new Client(this.config);
+    constructor(config) {
+        this.config = config;
+        this.client = new Client(config);
         this.connectPostgres();
         this.runMigrations();
         this.setDbSearchPath();

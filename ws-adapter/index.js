@@ -4,8 +4,8 @@ const {logger} = require("../logger");
 const {response} = require("../response");
 
 class WsAdapter {
-    constructor(options) {
-        this.config = options;
+    constructor(config) {
+        this.config = config;
         this.wsClients = new Map();
     }
 
