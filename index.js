@@ -4,7 +4,7 @@ const {utils} = require('./utils');
 const {response} = require('./response');
 const {token} = require("./token");
 const {DbAdapter} = require('./db-adapter');
-const {FileProcessor} = require('./file-processor');
+const {FilesAdapter} = require('./files-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
@@ -32,30 +32,30 @@ class Story {
     }
 
     /**
-     * Initialize processors if provided.
+     * Initialize processors.
      * @param {object} options - Options for initializing processors.
      * @param {object} options.db - Database configuration.
-     * @param {object} options.fileProcessor - File processor configuration.
+     * @param {object} options.filesAdapter - Files adapter configuration.
      */
-    processorsInit({db, fileProcessor}) {
+    adaptersInit({db, filesAdapter}) {
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
-        fileProcessor &&
-        (this.fileProcessor = new FileProcessor(fileProcessor));
+        filesAdapter &&
+        (this.filesAdapter = new FilesAdapter(filesAdapter));
     }
 
     /**
-     * Initialize communication protocols if provided.
+     * Initialize communication protocols.
      * @param {object} options - Options for initializing adapters.
      * @param {object} options.http - HTTP adapter configuration.
      * @param {object} options.ws - WebSocket adapter configuration.
      * @param {object} options.rmq - RabbitMQ adapter configuration.
-     * @param {object} options.fileProcessor - File processor configuration.
+     * @param {object} options.filesAdapter - Files adapter configuration.
      */
-    protocolsInit({http, ws, rmq, fileProcessor}) {
+    protocolsInit({http, ws, rmq, filesAdapter}) {
         http &&
-        (this.httpAdapter = new HttpAdapter(http, fileProcessor)) &&
+        (this.httpAdapter = new HttpAdapter(http, filesAdapter)) &&
         this.httpAdapter.run(request => this.gate.run(request, 'http'));
 
         ws &&

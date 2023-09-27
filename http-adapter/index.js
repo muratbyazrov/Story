@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const {logger} = require('../logger');
-const {fileProcessor} = require('../file-processor');
+const {filesAdapter} = require('../files-adapter');
 
 /**
  * HTTP Adapter for handling incoming HTTP requests and invoking a callback function.
@@ -35,7 +35,7 @@ class HttpAdapter {
         });
         app.use(bodyParser.json());
         app.post(this.httpConfig.path, async (req, res) => res.send(await callback(req.body)));
-        this.fileProcessorConfig && this.fileProcessorConfig.protocols.http && fileProcessor.httpRun(callback);
+        this.fileProcessorConfig && this.fileProcessorConfig.protocols.http && filesAdapter.httpRun(callback);
     }
 }
 
