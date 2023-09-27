@@ -8,11 +8,13 @@ const mime = require('mime-types');
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
     /**
-     * @param {object} [config] - Configuration for a file processor (if applicable).
+     * @param {object} [config] - Configuration for a files adapter
+     * @param {object} [config.maxSize] - Configuration for a files size.
+     * @param {object} [config.compression] - Configuration for a files compression.
      * @param {object} [config.protocols] - Protocols configuration.
      * @param {boolean} [config.protocols.http] - Configuration for HTTP protocol.
      */
-    constructor(config) {
+    init(config) {
         this.config = config;
         logger.info('File processor is activated');
     }
@@ -57,4 +59,4 @@ class FilesAdapter {
     }
 }
 
-module.exports = {FilesAdapter};
+module.exports = {filesAdapter: new FilesAdapter()};
