@@ -35,8 +35,8 @@ class Story {
     /**
      * Initialize adapters.
      * @param {object} options - Options for initializing adapters.
-     * @param {object} options.db - Database configuration.
-     * @param {object} options.filesAdapter - Files adapter configuration.
+     * @param {object} [options.db] - Database configuration.
+     * @param {object} [options.filesAdapter] - Files adapter configuration.
      */
     adaptersInit({db, filesAdapter: filesAdapterConfig}) {
         db &&
@@ -48,11 +48,11 @@ class Story {
 
     /**
      * Initialize communication protocols.
-     * @param {object} options - Options for initializing adapters.
-     * @param {object} options.http - HTTP adapter configuration.
-     * @param {object} options.ws - WebSocket adapter configuration.
-     * @param {object} options.rmq - RabbitMQ adapter configuration.
-     * @param {object} options.filesAdapter - Files adapter configuration.
+     * @param {object} options - Options for initializing protocols.
+     * @param {object} [options.http] - HTTP adapter configuration.
+     * @param {object} [options.ws] - WebSocket adapter configuration.
+     * @param {object} [options.rmq] - RabbitMQ adapter configuration.
+     * @param {object} [options.filesAdapter] - Files adapter configuration.
      */
     protocolsInit({http, ws, rmq, filesAdapter}) {
         http &&
