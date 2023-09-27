@@ -6,7 +6,7 @@ const path = require('path');
 const mime = require('mime-types');
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
-class FileProcessor {
+class FilesAdapter {
     /**
      * @param {object} [config] - Configuration for a file processor (if applicable).
      * @param {object} [config.protocols] - Protocols configuration.
@@ -57,4 +57,4 @@ class FileProcessor {
     }
 }
 
-module.exports = {FileProcessor};
+module.exports = {FilesAdapter};
