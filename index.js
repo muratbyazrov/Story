@@ -4,7 +4,7 @@ const {utils} = require('./utils');
 const {response} = require('./response');
 const {token} = require("./token");
 const {DbAdapter} = require('./db-adapter');
-const {FilesAdapter} = require('./files-adapter');
+const {filesAdapter} = require('./files-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
@@ -20,6 +20,7 @@ class Story {
         this.response = response;
         this.token = token;
         this.errors = errors;
+        this.filesAdapter = filesAdapter;
     }
 
     /**
@@ -37,12 +38,12 @@ class Story {
      * @param {object} options.db - Database configuration.
      * @param {object} options.filesAdapter - Files adapter configuration.
      */
-    adaptersInit({db, filesAdapter}) {
+    adaptersInit({db, filesAdapter: filesAdapterConfig}) {
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
         filesAdapter &&
-        (this.filesAdapter = new FilesAdapter(filesAdapter));
+        filesAdapter.init(filesAdapterConfig);
     }
 
     /**
