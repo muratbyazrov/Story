@@ -20,7 +20,7 @@ class FilesAdapter {
      */
     init(config) {
         this.config = config;
-        logger.info('File processor is activated');
+        logger.info('Files adapter is init');
     }
 
     /**

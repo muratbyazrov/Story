@@ -15,13 +15,13 @@ class HttpAdapter {
      * @param {string} httpConfig.host - The host on which the HTTP server should listen.
      * @param {number} httpConfig.port - The port on which the HTTP server should listen.
      * @param {string} httpConfig.path - The path on which the HTTP server should listen.
-     * @param {object} [fileProcessorConfig] - Configuration for a file processor (if applicable).
-     * @param {object} [fileProcessorConfig.protocols] - Configuration for various protocols.
-     * @param {boolean} [fileProcessorConfig.protocols.http] - Configuration for HTTP protocol.
+     * @param {object} [filesAdapterConfig] - Configuration for a file adapter.
+     * @param {object} [filesAdapterConfig.protocols] - Configuration for various protocols.
+     * @param {boolean} [filesAdapterConfig.protocols.http] - Configuration for HTTP protocol.
      */
-    constructor(httpConfig, fileProcessorConfig) {
+    constructor(httpConfig, filesAdapterConfig) {
         this.httpConfig = httpConfig;
-        this.fileProcessorConfig = fileProcessorConfig;
+        this.filesAdapterConfig = filesAdapterConfig;
     }
 
     /**
@@ -35,7 +35,7 @@ class HttpAdapter {
         });
         app.use(bodyParser.json());
         app.post(this.httpConfig.path, async (req, res) => res.send(await callback(req.body)));
-        this.fileProcessorConfig && this.fileProcessorConfig.protocols.http && filesAdapter.httpRun(callback);
+        this.filesAdapterConfig && this.filesAdapterConfig.protocols.http && filesAdapter.httpRun(callback);
     }
 }
 
