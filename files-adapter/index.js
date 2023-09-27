@@ -9,10 +9,14 @@ const mime = require('mime-types');
 class FilesAdapter {
     /**
      * @param {object} [config] - Configuration for a files adapter
-     * @param {object} [config.maxSize] - Configuration for a files size.
-     * @param {object} [config.compression] - Configuration for a files compression.
+     * @param {string} [config.maxSize] - Configuration for a files size.
+     * @param {boolean} [config.compression] - Configuration for a files adapter compression.
+     * @param {string} [config.uploadsPath] - Configuration for a files adapter uploads path.
+     * @param {string} [config.downloadsPath] - Configuration for a files adapter downloads path.
      * @param {object} [config.protocols] - Protocols configuration.
-     * @param {boolean} [config.protocols.http] - Configuration for HTTP protocol.
+     * @param {boolean} [config.protocols.http] - Configuration filed adapter for HTTP protocol.
+     * @param {boolean} [config.protocols.ws] - Configuration filed adapter for WS protocol.
+     * @param {boolean} [config.protocols.rmq] - Configuration filed adapter for RMQ protocol.
      */
     init(config) {
         this.config = config;
@@ -25,8 +29,8 @@ class FilesAdapter {
      */
     httpRun(callback) {
         const {
-            uploadsPath = `${this.config.path}/uploads`,
-            downloadsPath = `${this.config.path}/downloads`
+            uploadsPath = `/uploads`,
+            downloadsPath = `/downloads`
         } = this.config;
         const storage = multer.diskStorage({
             destination: 'uploads/',
