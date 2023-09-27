@@ -32,7 +32,7 @@ class Story {
     }
 
     /**
-     * Initialize processors.
+     * Initialize adapters.
      * @param {object} options - Options for initializing processors.
      * @param {object} options.db - Database configuration.
      * @param {object} options.filesAdapter - Files adapter configuration.
