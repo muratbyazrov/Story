@@ -23,6 +23,9 @@ class Story {
         this.filesAdapter = filesAdapter;
     }
 
+    /**
+     * @param {object} config - Options for initializing protocols.
+    */
     configInit(config) {
         if (!process.env.NODE_ENV) {
             throw new this.errors.NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
@@ -36,20 +39,16 @@ class Story {
 
     /**
      * Initialize the gate with configuration and controllers.
-     * @param {object} config - The gate configuration.
      * @param {Array<Object>} controllers - An array of controller objects.
      */
-    gateInit(config, controllers) {
-        this.gate = new Gate(config, controllers);
+    gateInit(controllers) {
+        this.gate = new Gate(this.config, controllers);
     }
 
-    /**
-     * Initialize adapters.
-     * @param {object} options - Options for initializing adapters.
-     * @param {object} [options.db] - Database configuration.
-     * @param {object} [options.filesAdapter] - Files adapter configuration.
-     */
-    adaptersInit({db, filesAdapter: filesAdapterConfig}) {
+    /** Initialize adapters*/
+    adaptersInit() {
+        const {db, filesAdapter: filesAdapterConfig} = this.config;
+
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
@@ -57,15 +56,10 @@ class Story {
         filesAdapter.init(filesAdapterConfig);
     }
 
-    /**
-     * Initialize communication protocols.
-     * @param {object} options - Options for initializing protocols.
-     * @param {object} [options.http] - HTTP adapter configuration.
-     * @param {object} [options.ws] - WebSocket adapter configuration.
-     * @param {object} [options.rmq] - RabbitMQ adapter configuration.
-     * @param {object} [options.filesAdapter] - Files adapter configuration.
-     */
-    protocolsInit({http, ws, rmq, filesAdapter}) {
+    /** Initialize communication protocols*/
+    protocolsInit() {
+        const {http, ws, rmq, filesAdapter} = this.config;
+
         http &&
         (this.httpAdapter = new HttpAdapter(http, filesAdapter)) &&
         this.httpAdapter.run(request => this.gate.run(request, 'http'));
