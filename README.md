@@ -1,7 +1,5 @@
 ## Story
-<div style="text-align:center;">
-<img src="./story-logo.png" alt="Лого" width="400" height="300">
-</div>
+<img src="./story.png" alt="Лого" width="350" height="200">
 
 - Story - легковесный фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
 - Работает с протоколами http, websocket, с брокером сообщений rabbitMQ и с клиентом БД - PostgreSQL
