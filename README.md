@@ -2,7 +2,7 @@
 <img src="./story.png" alt="Лого" width="350" height="200">
 
 - Story - фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
-- Работает с протоколами http, websocket, rabbitMQ
+- Работает с протоколами Http, Websockets, RabbitMQ
 - Встроенный адаптер для PostgresSQL
 - Работа с токенами
 - Работа с файлами
