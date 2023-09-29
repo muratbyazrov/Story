@@ -23,6 +23,17 @@ class Story {
         this.filesAdapter = filesAdapter;
     }
 
+    configInit(config) {
+        if (!process.env.NODE_ENV) {
+            throw new this.errors.NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
+        }
+        const _config = config[process.env.NODE_ENV];
+        if (!_config) {
+            throw new this.errors.NotFoundError(`Config: "${process.env.NODE_ENV}" is not found`);
+        }
+        this.config = _config;
+    }
+
     /**
      * Initialize the gate with configuration and controllers.
      * @param {object} config - The gate configuration.
