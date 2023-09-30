@@ -3,7 +3,7 @@ const {validator} = require('../validator');
 const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
-const {ValidationError, NotFoundError} = require('../errors');
+const {ValidationError, NotFoundError, InternalError} = require('../errors');
 const {token} = require("../token");
 
 class Gate {
@@ -27,13 +27,18 @@ class Gate {
             }
 
             logger.info({[`Got ${protocol} request`]: data});
+            validator.validate(data, gateSchema);
+
             if (!this.controllers[data.domain]) {
                 throw new NotFoundError('Incorrect domain');
             }
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            validator.validate(data, gateSchema);
+            if (request.prepareError) {
+                throw new InternalError(request.prepareError.message)
+            }
+
             const tokenData = await token.checkToken(this.config, data);
             const result = response.format(request, await this.controllers[data.domain][data.event](data, tokenData));
             logger.info({[`Send ${protocol} response`]: result});

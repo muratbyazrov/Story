@@ -3,7 +3,7 @@ const {logger} = require("../logger");
 const multer = require('multer');
 const path = require('path');
 const mime = require('mime-types');
-const {Forbidden} = require("../errors");
+const ONE_MB = 1000000;
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
@@ -28,14 +28,14 @@ class FilesAdapter {
      * @param {function} app - Express app instance
      * @param {function} app.post - Express app instance post method
      * @param {function} app.use - Express app instance use method
-     * @param {Function} callback - The callback function to handle file uploads.
+     * @param {Function} callback - It's a gate runner
      */
     httpRun(app, callback) {
         const {
             uploadsPath = '/uploads',
             downloadsPath = '/downloads',
-            maxFilesCount = 10,
-            maxFileSize = 1000000 // 1Mb
+            maxFilesCount = 1,
+            maxFileSize = 1,
         } = this.config;
 
         const storage = multer.diskStorage({
@@ -44,11 +44,11 @@ class FilesAdapter {
                 cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
             }
         });
-        const upload = multer({storage, limits: {files: maxFilesCount, fileSize: maxFileSize}}).any();
+        const upload = multer({storage, limits: {files: maxFilesCount, fileSize: maxFileSize * ONE_MB}}).any();
 
-        app.post(uploadsPath, upload, test, async (req, res) => {
+        app.post(uploadsPath, upload, async (err, req, res, next) => {
             const {domain, event, token} = req.headers;
-            const result = await callback({domain, event, params: {files: req.files}, token});
+            const result = await callback({domain, event, params: {files: req.files}, token, prepareError: err});
             res.send(result);
         });
         app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
