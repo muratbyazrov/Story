@@ -3,12 +3,13 @@ const {logger} = require("../logger");
 const multer = require('multer');
 const path = require('path');
 const mime = require('mime-types');
+const {Forbidden} = require("../errors");
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
     /**
      * @param {object} [config] - Configuration for a files adapter
-     * @param {string} [config.maxSize] - Configuration for a files size.
+     * @param {string} [config.maxFileSize] - Configuration for a files size.
      * @param {boolean} [config.compression] - Configuration for a files adapter compression.
      * @param {string} [config.uploadsPath] - Configuration for a files adapter uploads path.
      * @param {string} [config.downloadsPath] - Configuration for a files adapter downloads path.
@@ -31,8 +32,11 @@ class FilesAdapter {
      */
     httpRun(app, callback) {
         const {
-            uploadsPath = `/uploads`,
-            downloadsPath = `/downloads`
+            uploadsPath = '/uploads',
+            downloadsPath = '/downloads',
+            maxFilesCount = 10,
+            maxFileSize = 1000000 // 1Mb
+
         } = this.config;
         const storage = multer.diskStorage({
             destination: 'uploads/',
@@ -40,11 +44,10 @@ class FilesAdapter {
                 cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
             }
         });
-        const upload = multer({storage}).any();
+        const upload = multer({storage, limits: {files: maxFilesCount, fileSize: maxFileSize}}).any();
         app.post(uploadsPath, upload, async (req, res) => {
             const {domain, event, token} = req.headers;
             const result = await callback({domain, event, params: {files: req.files}, token});
-            // Если ошибка - удалить файл: result.error &&...
             res.send(result);
         });
         app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
