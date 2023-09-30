@@ -36,8 +36,8 @@ class FilesAdapter {
             downloadsPath = '/downloads',
             maxFilesCount = 10,
             maxFileSize = 1000000 // 1Mb
-
         } = this.config;
+
         const storage = multer.diskStorage({
             destination: 'uploads/',
             filename: function (req, file, cb) {
@@ -45,7 +45,8 @@ class FilesAdapter {
             }
         });
         const upload = multer({storage, limits: {files: maxFilesCount, fileSize: maxFileSize}}).any();
-        app.post(uploadsPath, upload, async (req, res) => {
+
+        app.post(uploadsPath, upload, test, async (req, res) => {
             const {domain, event, token} = req.headers;
             const result = await callback({domain, event, params: {files: req.files}, token});
             res.send(result);
