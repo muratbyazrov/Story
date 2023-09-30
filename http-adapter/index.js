@@ -4,10 +4,7 @@ const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const {filesAdapter} = require('../files-adapter');
 
-/**
- * HTTP Adapter for handling incoming HTTP requests and invoking a callback function.
- * @class
- */
+/** @class */
 class HttpAdapter {
     /**
      * Creates an instance of HttpAdapter.
@@ -35,7 +32,9 @@ class HttpAdapter {
         });
         app.use(bodyParser.json());
         app.post(this.httpConfig.path, async (req, res) => res.send(await callback(req.body)));
-        this.filesAdapterConfig && this.filesAdapterConfig.protocols.http && filesAdapter.httpRun(callback);
+
+        this.filesAdapterConfig && this.filesAdapterConfig.protocols.http &&
+        filesAdapter.httpRun(app, callback);
     }
 }
 

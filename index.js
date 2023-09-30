@@ -24,7 +24,7 @@ class Story {
     }
 
     /**
-     * @param {object} config - Options for initializing protocols.
+     * @param {object} config - Options for initializing protocols
     */
     configInit(config) {
         if (!process.env.NODE_ENV) {
@@ -45,18 +45,20 @@ class Story {
         this.gate = new Gate(this.config, controllers);
     }
 
-    /** Initialize adapters*/
+    /** Initialize adapters */
     adaptersInit() {
         const {db, filesAdapter: filesAdapterConfig} = this.config;
 
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
-        filesAdapter &&
+        /*TODO когда появится дефолтный конфиг -> const {http, ws, rmq} = filesAdapterConfig.protocols*/
+        filesAdapterConfig &&
+        (filesAdapterConfig.protocols.http || filesAdapterConfig.protocols.ws || filesAdapterConfig.protocols.rmq) &&
         filesAdapter.init(filesAdapterConfig);
     }
 
-    /** Initialize communication protocols*/
+    /** Initialize communication protocols */
     protocolsInit() {
         const {http, ws, rmq, filesAdapter} = this.config;
 

@@ -1,5 +1,4 @@
 const express = require('express');
-const app = express();
 const {logger} = require("../logger");
 const multer = require('multer');
 const path = require('path');
@@ -20,14 +19,17 @@ class FilesAdapter {
      */
     init(config) {
         this.config = config;
-        logger.info('Files adapter is init');
+        logger.info(`Files adapter listen ${config.uploadsPath}`);
     }
 
     /**
      * Start the HTTP server to process file uploads.
+     * @param {function} app - Express app instance
+     * @param {function} app.post - Express app instance post method
+     * @param {function} app.use - Express app instance use method
      * @param {Function} callback - The callback function to handle file uploads.
      */
-    httpRun(callback) {
+    httpRun(app, callback) {
         const {
             uploadsPath = `/uploads`,
             downloadsPath = `/downloads`
