@@ -3,7 +3,7 @@ const {logger} = require("../logger");
 const multer = require('multer');
 const path = require('path');
 const mime = require('mime-types');
-const ONE_MB = 1000000;
+const ONE_MB = 1024 * 1024;
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
@@ -44,11 +44,15 @@ class FilesAdapter {
                 cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
             }
         });
-        const upload = multer({storage, limits: {files: maxFilesCount, fileSize: maxFileSize * ONE_MB}}).any();
+        const upload = multer({storage, limits: {fileSize: 10000}}).any();
 
         app.post(uploadsPath, upload, async (err, req, res, next) => {
             const {domain, event, token} = req.headers;
-            const result = await callback({domain, event, params: {files: req.files}, token, prepareError: err});
+            const result = await callback({
+                domain, event, token,
+                params: {files: req.files},
+                internalError: {name: 'FilesAdapterError', err}
+            });
             res.send(result);
         });
         app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
