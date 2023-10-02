@@ -5,6 +5,7 @@ const {Forbidden} = require('./forbidden.js');
 const {RmqError} = require('./rmq-error.js');
 const {TokenError} = require('./token-error.js');
 const {InternalError} = require('./internal-error.js');
+const {FilesAdapterError} = require('./files-adapter-error.js');
 
 module.exports = {
     ValidationError,
@@ -14,6 +15,7 @@ module.exports = {
     TokenError,
     RmqError,
     InternalError,
+    FilesAdapterError,
     errors: {
         NotFoundError,
         Forbidden,

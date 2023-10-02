@@ -1,8 +1,8 @@
 class DbError {
     constructor(message) {
         this.isError = true;
-        this.code = 900;
-        this.name = 'Data Base error';
+        this.code = 1800;
+        this.name = 'Database error';
         this.message = message;
     }
 }
