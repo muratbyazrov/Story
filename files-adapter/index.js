@@ -42,7 +42,7 @@ class FilesAdapter {
             destination: 'uploads/',
             filename: function (req, file, cb) {
                 cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
-            }
+            },
         });
         const upload = multer({storage, limits: {fileSize: 10000}}).any();
 
