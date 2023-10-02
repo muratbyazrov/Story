@@ -36,9 +36,8 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            const {internalError} = request;
-            if (internalError) {
-                throw new StoryErrors[internalError.name](internalError.err.message)
+            if (request.internalError) {
+                throw new StoryErrors[request.internalError.name](request.internalError.err.message);
             }
 
             const tokenData = await token.checkToken(this.config, data);
