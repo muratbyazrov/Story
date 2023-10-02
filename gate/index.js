@@ -4,6 +4,7 @@ const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
 const {ValidationError, NotFoundError, InternalError} = require('../errors');
+const StoryErrors = require('../errors');
 const {token} = require("../token");
 
 class Gate {
@@ -35,8 +36,9 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
-            if (request.internalError) {
-                throw new InternalError(request.internalError.message)
+            const {internalError} = request;
+            if (internalError) {
+                throw new StoryErrors[internalError.name](internalError.err.message)
             }
 
             const tokenData = await token.checkToken(this.config, data);
