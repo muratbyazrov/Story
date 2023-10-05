@@ -74,6 +74,7 @@ class FilesAdapter {
             });
             res.send(result);
         });
+
         app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
     }
 
