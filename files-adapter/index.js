@@ -3,7 +3,7 @@ const {logger} = require("../logger");
 const multer = require('multer');
 const path = require('path');
 const mime = require('mime-types');
-const ONE_MB = 1024 * 1024;
+const sharp = require('sharp');
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
@@ -44,14 +44,33 @@ class FilesAdapter {
                 cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
             },
         });
-        const upload = multer({storage, limits: {fileSize: 10000}}).any();
+        const upload = multer({
+            storage,
+            // limits: {fileSize: 20 * 1024 * 1024} // Ограничение размера файла до 20 МБ
+        }).any();
 
-        app.post(uploadsPath, upload, async (err, req, res, next) => {
+        app.post(uploadsPath, upload, async (req, res) => {
             const {domain, event, token} = req.headers;
+            // Проверяем размер файла
+            const filesPromises = req.files.map(async (file) => {
+                if (file.size > 100 * 1024) { // Если файл больше 100 кБ, сжимаем
+                    const compressedImage = await sharp(file.path)
+                        .resize({width: 100})
+                        .toBuffer();
+                    return {
+                        fieldname: file.fieldname,
+                        originalname: file.originalname,
+                        buffer: compressedImage,
+                    };
+                } else {
+                    return file;
+                }
+            });
+            const compressedFiles = await Promise.all(filesPromises);
+
             const result = await callback({
                 domain, event, token,
                 params: {files: req.files},
-                internalError: {name: 'FilesAdapterError', err}
             });
             res.send(result);
         });

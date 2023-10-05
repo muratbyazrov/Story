@@ -28,12 +28,16 @@ class Token {
     }
 
     async checkToken(config, {token, domain, event}) {
-        if (!config.token.enabled) return true;
-        if (config.token.uncheckMethods && config.token.uncheckMethods[domain]?.includes(event)) return true;
-
-        if (!token) {
+        if (config.token.enabled && !token) {
             throw new TokenError('Token must be specified');
         }
+        if (!config.token.enabled) {
+            return true
+        }
+        if (config.token.uncheckMethods && config.token.uncheckMethods[domain]?.includes(event)) {
+            return true
+        }
+
         return this.decodeToken(config, token);
     }
 }
