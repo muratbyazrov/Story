@@ -66,7 +66,7 @@ class FilesAdapter {
                     return file;
                 }
             });
-            const compressedFiles = await Promise.all(filesPromises);
+            await Promise.all(filesPromises);
 
             const result = await callback({
                 domain, event, token,
