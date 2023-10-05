@@ -51,22 +51,7 @@ class FilesAdapter {
 
         app.post(uploadsPath, upload, async (req, res) => {
             const {domain, event, token} = req.headers;
-            // Проверяем размер файла
-            const filesPromises = req.files.map(async (file) => {
-                if (file.size > 100 * 1024) { // Если файл больше 100 кБ, сжимаем
-                    const compressedImage = await sharp(file.path)
-                        .resize({width: 100})
-                        .toBuffer();
-                    return {
-                        fieldname: file.fieldname,
-                        originalname: file.originalname,
-                        buffer: compressedImage,
-                    };
-                } else {
-                    return file;
-                }
-            });
-            await Promise.all(filesPromises);
+            await this._compressImages(req);
 
             const result = await callback({
                 domain, event, token,
@@ -76,6 +61,31 @@ class FilesAdapter {
         });
 
         app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
+    }
+
+    async _compressImages(req) {
+        return await Promise.all(
+            req.files.map(async (file) => {
+                if (file.size > 100 * 1024) { // Если файл больше 100 кБ, сжимаем
+                    const compressedImage = await sharp(file.path)
+                        .resize(200, null, {
+                            fit: 'contain',
+                            position: sharp.strategy.attention,
+                        })
+                        .toFormat('jpeg')
+                        .jpeg({quality: 10})
+                        .toBuffer();
+
+                    return {
+                        fieldname: file.fieldname,
+                        originalname: file.originalname,
+                        buffer: compressedImage,
+                    };
+                } else {
+                    return file;
+                }
+            })
+        );
     }
 
     /**
