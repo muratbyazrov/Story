@@ -38,7 +38,7 @@ class FilesAdapter {
         const {
             createPath = '/create',
             getPath = '/get',
-            destination = `${__dirname}/downloads`,
+            destination = `${__dirname}/uploads`,
             maxFileSizeMb = 50,
             imagesCompression: {
                 widthPx = null,
