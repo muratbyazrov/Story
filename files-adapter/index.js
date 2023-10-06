@@ -69,7 +69,7 @@ class FilesAdapter {
                     if (err) {
                         logger.error(`File sharp process error: ${err}`);
                     } else {
-                        logger.info(`The image has been successfully uploaded and processed: ${JSON.stringify(info)}`);
+                        logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
                     }
                 });
 
