@@ -4,27 +4,30 @@ const multer = require('multer');
 const path = require('path');
 const mime = require('mime-types');
 const sharp = require('sharp');
+const fs = require('fs');
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
     /**
      * @param {object} [config] - Configuration for a files adapter
-     * @param {string} [config.maxFileSize] - Configuration for a files size.
-     * @param {boolean} [config.compression] - Configuration for a files adapter compression.
-     * @param {string} [config.uploadsPath] - Configuration for a files adapter uploads path.
-     * @param {string} [config.downloadsPath] - Configuration for a files adapter downloads path.
-     * @param {object} [config.protocols] - Protocols configuration.
-     * @param {boolean} [config.protocols.http] - Configuration filed adapter for HTTP protocol.
-     * @param {boolean} [config.protocols.ws] - Configuration filed adapter for WS protocol.
-     * @param {boolean} [config.protocols.rmq] - Configuration filed adapter for RMQ protocol.
+     * @param {string} [config.maxFileSizeMb] - Configuration for a files size
+     * @param {string} [config.createPath] - Configuration for a files adapter uploads path
+     * @param {string} [config.getPath] - Configuration for a files adapter downloads path
+     * @param {object} [config.protocols] - Protocols configuration
+     * @param {boolean} [config.protocols.http] - Configuration filed adapter for HTTP protocol
+     * @param {boolean} [config.protocols.ws] - Configuration filed adapter for WS protocol
+     * @param {boolean} [config.protocols.rmq] - Configuration filed adapter for RMQ protocol
+     * @param {boolean} [config.imagesCompression.widthPx] - New image width in px
+     * @param {boolean} [config.imagesCompression.heightPx] - New image height in px
+     * @param {boolean} [config.imagesCompression] - Configuration for a files adapter compression
      */
     init(config) {
         this.config = config;
-        logger.info(`Files adapter listen ${config.uploadsPath}`);
+        logger.info(`Files adapter listen ${config.getPath}`);
     }
 
     /**
-     * Start the HTTP server to process file uploads.
+     * Start the HTTP server to process file uploads
      * @param {function} app - Express app instance
      * @param {function} app.post - Express app instance post method
      * @param {function} app.use - Express app instance use method
@@ -32,60 +35,53 @@ class FilesAdapter {
      */
     httpRun(app, callback) {
         const {
-            uploadsPath = '/uploads',
-            downloadsPath = '/downloads',
-            maxFilesCount = 1,
-            maxFileSize = 1,
+            createPath = '/create',
+            getPath = '/get',
+            destination = `${__dirname}/downloads`,
+            maxFileSizeMb = 50,
+            imagesCompression: {
+                widthPx = null,
+                heightPx = null,
+            }
         } = this.config;
 
-        const storage = multer.diskStorage({
-            destination: 'uploads/',
-            filename: function (req, file, cb) {
-                cb(null, `${file.fieldname}-${Date.now()}.${mime.extension(file.mimetype)}`);
-            },
-        });
-        const upload = multer({
-            storage,
-            // limits: {fileSize: 20 * 1024 * 1024} // Ограничение размера файла до 20 МБ
-        }).any();
+        const storage = multer.memoryStorage();
+        const upload = multer({storage: storage});
 
-        app.post(uploadsPath, upload, async (req, res) => {
+        app.post(createPath, upload.single('image'), async (req, res) => {
+            if (!req.file) {
+                logger.error('File is not specify');
+            }
+
+            const fileSizeInMB = req.file.size / (1024 * 1024);
+            if (fileSizeInMB >= maxFileSizeMb) {
+                logger.error('File is too large');
+            }
+
+            if (!fs.existsSync(destination)) {
+                fs.mkdirSync(destination, {recursive: true});
+            }
+
+            const fileName = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
+            await sharp(req.file.buffer)
+                .resize(widthPx, heightPx)
+                .toFile(path.join(destination, fileName), (err, info) => {
+                    if (err) {
+                        logger.error(`File sharp process error: ${err}`);
+                    } else {
+                        logger.info(`The image has been successfully uploaded and processed: ${JSON.stringify(info)}`);
+                    }
+                });
+
             const {domain, event, token} = req.headers;
-            await this._compressImages(req);
-
             const result = await callback({
                 domain, event, token,
-                params: {files: req.files},
+                params: {files: {...req.file, fileName}},
             });
             res.send(result);
         });
 
-        app.use(downloadsPath, express.static(`${path.dirname(require.main.filename)}/uploads`));
-    }
-
-    async _compressImages(req) {
-        return await Promise.all(
-            req.files.map(async (file) => {
-                if (file.size > 100 * 1024) { // Если файл больше 100 кБ, сжимаем
-                    const compressedImage = await sharp(file.path)
-                        .resize(200, null, {
-                            fit: 'contain',
-                            position: sharp.strategy.attention,
-                        })
-                        .toFormat('jpeg')
-                        .jpeg({quality: 10})
-                        .toBuffer();
-
-                    return {
-                        fieldname: file.fieldname,
-                        originalname: file.originalname,
-                        buffer: compressedImage,
-                    };
-                } else {
-                    return file;
-                }
-            })
-        );
+        app.use(getPath, express.static(destination)); // `${path.dirname(require.main.filename)}/uploads` - так можно узнать путь к корню проекта
     }
 
     /**
