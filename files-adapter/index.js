@@ -46,7 +46,6 @@ class FilesAdapter {
             }
         } = this.config;
 
-        let error = null;
         const storage = multer.memoryStorage();
         const upload = multer({storage: storage});
 
