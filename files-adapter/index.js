@@ -52,13 +52,11 @@ class FilesAdapter {
         app.post(createPath, upload.single('image'), async (req, res) => {
             try {
                 if (!req.file) {
-                    logger.error('File is not specify');
                     throw new BadRequestError('File is not specify');
                 }
 
                 const fileSizeInMB = req.file.size / (1024 * 1024);
                 if (fileSizeInMB >= maxFileSizeMb) {
-                    logger.error('File is too large');
                     throw new BadRequestError('File is too large');
                 }
 
@@ -71,7 +69,6 @@ class FilesAdapter {
                     .resize(widthPx, heightPx)
                     .toFile(path.join(destination, fileName), (err, info) => {
                         if (err) {
-                            logger.error(`File sharp process error: ${err}`);
                             throw new InternalError(err);
                         } else {
                             logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
