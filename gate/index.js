@@ -37,6 +37,9 @@ class Gate {
             if (!this.controllers[data.domain][data.event]) {
                 throw new NotFoundError('Method (event) not found');
             }
+            if (request.error) {
+                throw request.error;
+            }
 
             const result = response.format(request, await this.controllers[data.domain][data.event](data, tokenData));
             logger.info({[`Send ${protocol} response`]: result});

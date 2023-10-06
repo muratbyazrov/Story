@@ -5,6 +5,7 @@ const path = require('path');
 const mime = require('mime-types');
 const sharp = require('sharp');
 const fs = require('fs');
+const {BadRequestError, InternalError} = require('../errors')
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
@@ -45,40 +46,54 @@ class FilesAdapter {
             }
         } = this.config;
 
+        let error = null;
         const storage = multer.memoryStorage();
         const upload = multer({storage: storage});
 
         app.post(createPath, upload.single('image'), async (req, res) => {
-            if (!req.file) {
-                logger.error('File is not specify');
-            }
+            try {
+                if (!req.file) {
+                    logger.error('File is not specify');
+                    error = new BadRequestError('File is not specify');
+                }
 
-            const fileSizeInMB = req.file.size / (1024 * 1024);
-            if (fileSizeInMB >= maxFileSizeMb) {
-                logger.error('File is too large');
-            }
+                const fileSizeInMB = req.file.size / (1024 * 1024);
+                if (fileSizeInMB >= maxFileSizeMb) {
+                    logger.error('File is too large');
+                    error = new BadRequestError('File is too large');
+                }
 
-            if (!fs.existsSync(destination)) {
-                fs.mkdirSync(destination, {recursive: true});
-            }
+                if (!fs.existsSync(destination)) {
+                    fs.mkdirSync(destination, {recursive: true});
+                }
 
-            const fileName = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
-            await sharp(req.file.buffer)
-                .resize(widthPx, heightPx)
-                .toFile(path.join(destination, fileName), (err, info) => {
-                    if (err) {
-                        logger.error(`File sharp process error: ${err}`);
-                    } else {
-                        logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
-                    }
+                const fileName = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
+                await sharp(req.file.buffer)
+                    .resize(widthPx, heightPx)
+                    .toFile(path.join(destination, fileName), (err, info) => {
+                        if (err) {
+                            logger.error(`File sharp process error: ${err}`);
+                            error = new InternalError(err);
+                        } else {
+                            logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
+                        }
+                    });
+
+                const {domain, event, token} = req.headers;
+                const result = await callback({
+                    domain, event, token,
+                    params: {files: {...req.file, fileName}},
                 });
-
-            const {domain, event, token} = req.headers;
-            const result = await callback({
-                domain, event, token,
-                params: {files: {...req.file, fileName}},
-            });
-            res.send(result);
+                res.send(result);
+            } catch (error) {
+                const {domain, event, token} = req.headers;
+                const result = await callback({
+                    domain, event, token,
+                    params: {},
+                    error
+                });
+                res.send(result);
+            }
         });
 
         app.use(getPath, express.static(destination)); // `${path.dirname(require.main.filename)}/uploads` - так можно узнать путь к корню проекта
