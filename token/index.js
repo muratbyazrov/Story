@@ -4,9 +4,9 @@ const {TokenError} = require("../errors");
 class Token {
     async generateToken(data, config) {
         if (!config || !config.key) throw new TokenError('Token config not specified');
-        const {key, expiresIn = 24 * 60 * 60 * 1000} = config;
+        const {key, expiresIn, algorithm} = config;
         return new Promise((resolve, reject) => {
-            jwt.sign({...data}, key, {algorithm: 'HS256', expiresIn}, (error, token) => {
+            jwt.sign({...data}, key, {algorithm, expiresIn}, (error, token) => {
                 if (error) {
                     reject(new TokenError(error.message));
                 }
@@ -16,9 +16,9 @@ class Token {
     }
 
     decodeToken(config, token) {
-        const {key} = config.token;
+        const {key, algorithm} = config.token;
         return new Promise((resolve, reject) => {
-            jwt.verify(token, key, {algorithm: 'RS256'}, (error, decoded) => {
+            jwt.verify(token, key, {algorithm}, (error, decoded) => {
                 if (error) {
                     reject(new TokenError(error.message));
                 }

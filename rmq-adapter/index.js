@@ -11,7 +11,7 @@ class RmqAdapter {
     }
 
     run(callback) {
-        const {connect: {host = 'localhost', port = 5672, user = 'story', password = 'story'} = {}} = this.config;
+        const {connect: {host = 'localhost', port, user, password} = {}} = this.config;
         const opt = {credentials: amqp.credentials.plain(user, password)};
         amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
             if (error) {
@@ -27,20 +27,20 @@ class RmqAdapter {
     consume(callback) {
         const {
             consume: {
-                exchange = 'story',
-                exchangeType = 'fanout',
-                exchangeDurable = false,
-                bindPattern = '',
-                queue = '',
-                queueDurable = false,
-                noAck = false,
-                prefetchCount = 1,
-                xMessageTtl = 10 * 60 * 1000,
-                selfAck = true,
-            } = {},
+                exchange,
+                exchangeType,
+                exchangeDurable,
+                bindPattern,
+                queue,
+                queueDurable,
+                noAck,
+                prefetchCount,
+                xMessageTtl,
+                selfAck,
+            },
         } = this.config;
 
-        selfAck && (this.signature = exchange +  queue);
+        selfAck && (this.signature = exchange + queue);
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(error.message);

@@ -11,16 +11,16 @@ const {BadRequestError, InternalError} = require('../errors')
 class FilesAdapter {
     /**
      * @param {object} [config] - Configuration for a files adapter
-     * @param {string} [config.maxFileSizeMb] - Configuration for a files size
+     * @param {number} [config.maxFileSizeMb] - Configuration for a files size
      * @param {string} [config.createPath] - Configuration for a files adapter uploads path
      * @param {string} [config.getPath] - Configuration for a files adapter downloads path
      * @param {object} [config.protocols] - Protocols configuration
      * @param {boolean} [config.protocols.http] - Configuration filed adapter for HTTP protocol
      * @param {boolean} [config.protocols.ws] - Configuration filed adapter for WS protocol
      * @param {boolean} [config.protocols.rmq] - Configuration filed adapter for RMQ protocol
-     * @param {boolean} [config.imagesCompression.widthPx] - New image width in px
-     * @param {boolean} [config.imagesCompression.heightPx] - New image height in px
-     * @param {boolean} [config.imagesCompression] - Configuration for a files adapter compression
+     * @param {object} [config.imagesCompression] - Configuration for a files adapter compression
+     * @param {number} [config.imagesCompression.widthPx] - New image width in px
+     * @param {number} [config.imagesCompression.heightPx] - New image height in px
      */
     init(config) {
         this.config = config;
@@ -36,10 +36,10 @@ class FilesAdapter {
      */
     httpRun(app, callback) {
         const {
-            createPath = '/create',
-            getPath = '/get',
-            destination = `${__dirname}/uploads`,
-            maxFileSizeMb = 50,
+            createPath,
+            getPath,
+            destination,
+            maxFileSizeMb,
             imagesCompression: {
                 widthPx = null,
                 heightPx = null,

@@ -1,37 +1,37 @@
 module.exports = {
     db: {
-        user: 'story-messenger',
+        user: 'db-story-user',
         host: 'postgres',
         password: 'test',
         port: 5432,
-        database: 'story',
-        schema: 'story',
+        database: 'story-database',
+        schema: 'story-schema',
     },
     http: {
-        host: '0.0.0.0',
-        port: 3002,
+        host: 'http-story-host',
+        port: 3000,
         path: '/story-example-api/v1',
     },
     ws: {
-        host: '0.0.0.0',
-        port: 9000,
+        host: '192.168.100.142',
+        port: 9005,
     },
     rmq: {
         connect: {
             host: 'rabbitmq',
             port: 5672,
-            user: 'test',
+            user: 'story',
             password: 'test',
-            queueName: 'cats',
+            queueName: 'story-queue',
         },
         consume: {
             exchange: 'cats',
-            exchangeType: 'direct',
+            exchangeType: 'fanout',
             exchangeDurable: false,
-            bindPattern: 'cats_pattern',
-            queue: 'cats',
+            bindPattern: 'story_pattern',
+            queue: 'story',
             queueDurable: false,
-            noAck: true,
+            noAck: false,
             prefetchCount: 1,
             xMessageTtl: 10 * 60 * 1000,
             selfAck: true,
@@ -39,29 +39,39 @@ module.exports = {
         publish: {
             persistent: true,
             exchanges: {
-                account: {
-                    exchange: 'account',
+                storyExchange_1: {
+                    exchange: 'story-exchange',
+                    routingKey: 'story-routing-key',
                 },
-                message: {
-                    exchange: 'message',
+                storyExchange_2: {
+                    exchange: 'story-exchange',
+                    routingKey: 'story-routing-key',
                 },
             },
         },
     },
     token: {
         enabled: true,
-        key: 'token-key',
-        expiresIn: 60 * 1000,
+        key: 'story-key',
+        expiresIn: 24 * 60 * 60 * 1000,
+        algorithm: 'HS256',
+        uncheckMethods: {
+            storyDomain: ['method_1', 'method_2'],
+        },
     },
     filesAdapter: {
-        maxSize: '4Mb',
-        compression: true,
+        maxFileSizeMb: 10,
+        createPath: '/story-api/v1/create',
+        getPath: '/story-api/v1/get',
+        destination: `${__dirname}/uploads`,
+        imagesCompression: {
+            widthPx: null,
+            heightPx: null,
+        },
         protocols: {
-            http: true,
+            http: false,
             ws: false,
             rmq: false,
         },
-        uploadsPath: '/story-photo-api/v1/uploads',
-        downloadsPath: '/story-photo-api/v1/downloads',
     },
 };

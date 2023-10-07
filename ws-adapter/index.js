@@ -39,7 +39,7 @@ class WsAdapter {
         }
     }
 
-    async send(message, {sessionId = null, domain = 'ws', event = 'ws'}) {
+    async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
         const wsClient = this.wsClients.get(sessionId);
         logger.info({[`Send WS message to ${sessionId}`]: message});
         try {

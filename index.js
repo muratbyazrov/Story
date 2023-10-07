@@ -10,6 +10,7 @@ const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
 const {Gate} = require('./gate');
 const {errors} = require('./errors');
+const defaultConfig = require('./default-config');
 
 /** class */
 class Story {
@@ -34,7 +35,8 @@ class Story {
         if (!_config) {
             throw new this.errors.NotFoundError(`Config: "${process.env.NODE_ENV}" is not found`);
         }
-        this.config = _config;
+        this.config = utils.mergeObjects(_config, defaultConfig);
+        console.log(11111111111, this.config)
     }
 
     /**
