@@ -108,6 +108,28 @@ class FilesAdapter {
     rmqRun() {
         // Code for processing files received via RabbitMQ.
     }
+
+    /**
+     * Delete a file by name from the specified directory.
+     * @param {string} fileName - The name of the file to delete.
+     * @returns {Promise<void>} - A Promise that resolves when the file is deleted.
+     */
+    async deleteFileByName(fileName) {
+        if (!fileName) {
+            throw new BadRequestError('Param "fileName" must be specified');
+        }
+
+        const {destination} = this.config;
+        const filePath = path.join(destination, fileName);
+
+        try {
+            await fs.promises.unlink(filePath);
+            logger.info(`File '${fileName}' has been deleted.`);
+        } catch (error) {
+            logger.error(`Error deleting file '${fileName}': ${error.message}`);
+            throw new InternalError(`Error deleting file '${fileName}': ${error.message}`);
+        }
+    }
 }
 
 module.exports = {filesAdapter: new FilesAdapter()};
