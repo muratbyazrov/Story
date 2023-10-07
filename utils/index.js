@@ -48,9 +48,17 @@ class Utils {
         }
     };
 
+    mergeConfig(cfg1, cfg2) {
+        const cfg3 = {};
+        for (const el in cfg1) {
+            cfg3[el] = this.mergeObjects(cfg1[el], cfg2[el]);
+        }
+
+        return cfg3;
+    }
+
     mergeObjects(obj1, obj2) {
         const obj3 = {...obj1};
-
         for (const key in obj2) {
             if (typeof obj2[key] === 'object' && typeof obj1[key] === 'object') {
                 obj3[key] = this.mergeObjects(obj1[key], obj2[key]);

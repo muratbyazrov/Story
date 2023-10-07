@@ -35,7 +35,7 @@ class Story {
         if (!_config) {
             throw new this.errors.NotFoundError(`Config: "${process.env.NODE_ENV}" is not found`);
         }
-        this.config = utils.mergeObjects(_config, defaultConfig);
+        this.config = utils.mergeConfig(_config, defaultConfig);
     }
 
     /**
