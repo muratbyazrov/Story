@@ -92,7 +92,7 @@ class FilesAdapter {
             }
         });
 
-        app.use(getPath, express.static(destination)); // `${path.dirname(require.main.filename)}/uploads` - так можно узнать путь к корню проекта
+        app.use(getPath, express.static(destination)); // or `${path.dirname(require.main.filename)}/uploads`
     }
 
     /**
