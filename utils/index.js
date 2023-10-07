@@ -52,12 +52,10 @@ class Utils {
         const obj3 = {...obj1};
 
         for (const key in obj2) {
-            if (obj2.hasOwnProperty(key)) {
-                if (typeof obj2[key] === 'object' && typeof obj1[key] === 'object') {
-                    obj3[key] = this.mergeObjects(obj1[key], obj2[key]);
-                } else if (!obj1.hasOwnProperty(key)) {
-                    obj3[key] = obj2[key];
-                }
+            if (typeof obj2[key] === 'object' && typeof obj1[key] === 'object') {
+                obj3[key] = this.mergeObjects(obj1[key], obj2[key]);
+            } else if (!obj1.hasOwnProperty(key)) {
+                obj3[key] = obj2[key];
             }
         }
 
