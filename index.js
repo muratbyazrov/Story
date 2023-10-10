@@ -53,9 +53,8 @@ class Story {
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
-        /*TODO когда появится дефолтный конфиг -> const {http, ws, rmq} = filesAdapterConfig.protocols*/
-        filesAdapterConfig &&
-        (filesAdapterConfig.protocols.http || filesAdapterConfig.protocols.ws || filesAdapterConfig.protocols.rmq) &&
+        const {http, ws, rmq} = filesAdapterConfig.protocols
+        (http || ws || rmq) &&
         filesAdapter.init(filesAdapterConfig);
     }
 
