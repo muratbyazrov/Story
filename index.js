@@ -48,14 +48,13 @@ class Story {
 
     /** Initialize adapters */
     adaptersInit() {
-        const {db, filesAdapter: filesAdapterConfig} = this.config;
+        const {db, filesAdapter: {protocols: {http, ws, rmq}, ...filesAdapterCfg}} = this.config;
 
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
-        const {http, ws, rmq} = filesAdapterConfig.protocols
         (http || ws || rmq) &&
-        filesAdapter.init(filesAdapterConfig);
+        filesAdapter.init({protocols: {http, ws, rmq}, ...filesAdapterCfg});
     }
 
     /** Initialize communication protocols */
