@@ -51,7 +51,7 @@ module.exports = {
         },
     },
     token: {
-        enabled: true,
+        enabled: false,
         key: 'story-key',
         expiresIn: 24 * 60 * 60 * 1000,
         algorithm: 'HS256',
