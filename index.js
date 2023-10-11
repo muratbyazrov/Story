@@ -55,6 +55,8 @@ class Story {
 
         (http || ws || rmq) &&
         filesAdapter.init({protocols: {http, ws, rmq}, ...filesAdapterCfg});
+
+        token.init(this.config);
     }
 
     /** Initialize communication protocols */

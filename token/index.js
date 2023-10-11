@@ -2,9 +2,13 @@ const jwt = require('jsonwebtoken');
 const {TokenError} = require("../errors");
 
 class Token {
-    async generateToken(data, config) {
-        if (!config || !config.key) throw new TokenError('Token config not specified');
-        const {key, expiresIn, algorithm} = config;
+    init({token}) {
+        this.config = token;
+    }
+
+    async generateToken(data) {
+        if (!this.config || !this.config.key) throw new TokenError('Token config not specified');
+        const {key, expiresIn, algorithm} = this.config;
         return new Promise((resolve, reject) => {
             jwt.sign({...data}, key, {algorithm, expiresIn}, (error, token) => {
                 if (error) {
@@ -15,8 +19,8 @@ class Token {
         });
     }
 
-    decodeToken(config, token) {
-        const {key, algorithm} = config.token;
+    decodeToken(token) {
+        const {key, algorithm} = this.config;
         return new Promise((resolve, reject) => {
             jwt.verify(token, key, {algorithm}, (error, decoded) => {
                 if (error) {
@@ -27,18 +31,12 @@ class Token {
         });
     }
 
-    async checkToken(config, {token, domain, event}) {
-        if (!config.token.enabled) {
-            return true
-        }
-        if (config.token.uncheckMethods[domain]?.includes(event)) {
-            return true
-        }
-        if (!token) {
-            throw new TokenError('Token must be specified');
-        }
+    async checkToken({token, domain, event}) {
+        if (!this.config.token.enabled) return true
+        if (this.config.token.uncheckMethods[domain]?.includes(event)) return true
+        if (!token) throw new TokenError('Token must be specified');
 
-        return this.decodeToken(config, token);
+        return this.decodeToken(token);
     }
 }
 
