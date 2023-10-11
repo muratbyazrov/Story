@@ -32,8 +32,9 @@ class Token {
     }
 
     async checkToken({token, domain, event}) {
-        if (!this.config.token.enabled) return true
-        if (this.config.token.uncheckMethods[domain]?.includes(event)) return true
+        const {enabled, uncheckMethods} = this.config;
+        if (!enabled) return true
+        if (uncheckMethods[domain]?.includes(event)) return true
         if (!token) throw new TokenError('Token must be specified');
 
         return this.decodeToken(token);
