@@ -6,7 +6,7 @@ class Token {
         this.config = token;
     }
 
-    async generateToken(data) {
+    async generateToken(data = {}) {
         if (!this.config || !this.config.key) throw new TokenError('Token config not specified');
         const {key, expiresIn, algorithm} = this.config;
         return new Promise((resolve, reject) => {
