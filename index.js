@@ -26,7 +26,7 @@ class Story {
 
     /**
      * @param {object} config - Options for initializing protocols
-    */
+     */
     configInit(config) {
         if (!process.env.NODE_ENV) {
             throw new this.errors.NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
@@ -48,13 +48,17 @@ class Story {
 
     /** Initialize adapters */
     adaptersInit() {
-        const {db, filesAdapter: {protocols: {http, ws, rmq}, ...filesAdapterCfg}} = this.config;
+        const {db, filesAdapter: filesAdapterCfg} = this.config;
 
         db &&
         (this.dbAdapter = new DbAdapter(db));
 
-        (http || ws || rmq) &&
-        filesAdapter.init({protocols: {http, ws, rmq}, ...filesAdapterCfg});
+        if (filesAdapterCfg) {
+            const {http, ws, rmq} = filesAdapterCfg.protocols;
+            if (http || ws || rmq) {
+                filesAdapter.init(filesAdapterCfg);
+            }
+        }
 
         token.init(this.config);
     }
