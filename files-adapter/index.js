@@ -64,10 +64,10 @@ class FilesAdapter {
                     fs.mkdirSync(destination, {recursive: true});
                 }
 
-                const fileName = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
+                const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
                 await sharp(req.file.buffer)
                     .resize(widthPx, heightPx)
-                    .toFile(path.join(destination, fileName), (err, info) => {
+                    .toFile(path.join(destination, filename), (err, info) => {
                         if (err) {
                             throw new InternalError(err);
                         } else {
@@ -78,7 +78,7 @@ class FilesAdapter {
                 const {domain, event, token} = req.headers;
                 const result = await callback({
                     domain, event, token,
-                    params: {files: {...req.file, fileName}},
+                    params: {files: {...req.file, filename}},
                 });
                 res.send(result);
             } catch (error) {
@@ -111,23 +111,23 @@ class FilesAdapter {
 
     /**
      * Delete a file by name from the specified directory.
-     * @param {string} fileName - The name of the file to delete.
+     * @param {string} filename - The name of the file to delete.
      * @returns {Promise<void>} - A Promise that resolves when the file is deleted.
      */
-    async deleteFileByName(fileName) {
-        if (!fileName) {
-            throw new BadRequestError('Param "fileName" must be specified');
+    async deleteFileByName(filename) {
+        if (!filename) {
+            throw new BadRequestError('Param "filename" must be specified');
         }
 
         const {destination} = this.config;
-        const filePath = path.join(destination, fileName);
+        const filePath = path.join(destination, filename);
 
         try {
             await fs.promises.unlink(filePath);
-            logger.info(`File '${fileName}' has been deleted.`);
+            logger.info(`File '${filename}' has been deleted.`);
         } catch (error) {
-            logger.error(`Error deleting file '${fileName}': ${error.message}`);
-            throw new InternalError(`Error deleting file '${fileName}': ${error.message}`);
+            logger.error(`Error deleting file '${filename}': ${error.message}`);
+            throw new InternalError(`Error deleting file '${filename}': ${error.message}`);
         }
     }
 }
