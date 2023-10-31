@@ -1,5 +1,6 @@
 module.exports = {
     db: {
+        // https://node-postgres.com/apis/client
         user: 'db-story-user',
         host: 'postgres',
         password: 'test',

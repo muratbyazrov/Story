@@ -32,6 +32,7 @@ class Token {
     }
 
     async checkToken({token, domain, event}) {
+        if (!this.config) return true
         const {enabled, uncheckMethods} = this.config;
         if (!enabled) return true
         if (uncheckMethods[domain]?.includes(event)) return true

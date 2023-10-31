@@ -16,6 +16,7 @@ class DbAdapter {
     async connectPostgres() {
         await this.client.connect(err => {
             if (err) {
+                logger.info('postgres connect error', err.message);
                 throw new DbError(err.message);
             }
             logger.info(`Connected to postgres (${this.config.host}:${this.config.port})`);
