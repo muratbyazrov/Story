@@ -1,3 +1,4 @@
+const path = require('path');
 const {validator} = require('./validator');
 const {logger} = require('./logger');
 const {utils} = require('./utils');
@@ -9,7 +10,7 @@ const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
 const {Gate} = require('./gate');
-const {errors} = require('./errors');
+const {errors, NotFoundError} = require('./errors');
 const defaultConfig = require('./default-config');
 
 /** class */
@@ -24,18 +25,13 @@ class Story {
         this.filesAdapter = filesAdapter;
     }
 
-    /**
-     * @param {object} config - Options for initializing protocols
-     */
-    configInit(config) {
+    configInit() {
         if (!process.env.NODE_ENV) {
-            throw new this.errors.NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
+            throw new NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
         }
-        const _config = config[process.env.NODE_ENV];
-        if (!_config) {
-            throw new this.errors.NotFoundError(`Config: "${process.env.NODE_ENV}" is not found`);
-        }
-        this.config = utils.mergeConfig(_config, defaultConfig);
+        const configPath = path.join(`${path.dirname(require.main.filename)}`, `config.${process.env.NODE_ENV}.js`);
+        const config = require(configPath);
+        this.config = utils.mergeConfig(config, defaultConfig);
     }
 
     /**
