@@ -24,6 +24,9 @@ class DbAdapter {
     }
 
     async runMigrations() {
+        if (!this.config.mgrEnabled) {
+            return;
+        }
         await exec(`/bin/sh ${__dirname}/migration-runner.sh`, (error, stdout, stderr) => {
             if (stdout) {
                 logger.info(stdout);
