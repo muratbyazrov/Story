@@ -44,7 +44,7 @@ class Story {
 
     /** Initialize adapters */
     adaptersInit() {
-        const {db, filesAdapter: filesAdapterCfg, token} = this.config;
+        const {db, filesAdapter: filesAdapterCfg, token: tokenConfig} = this.config;
 
         db &&
         (this.dbAdapter = new DbAdapter(db));
@@ -56,7 +56,7 @@ class Story {
             }
         }
 
-        token &&
+        tokenConfig &&
         token.init(this.config);
     }
 
