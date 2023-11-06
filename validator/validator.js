@@ -14,6 +14,10 @@ class Validator {
             array1: {type: 'array', minItems: 1},
             boolean: {type: 'boolean'},
             null: {type: 'null'},
+            nullOrString: ['null', 'string'],
+            nullOrNumber: ['null', 'number'],
+            nullOrArray: ['null', 'array'],
+            nullOrObject: ['null', 'object'],
         };
     }
 
