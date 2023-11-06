@@ -24,7 +24,7 @@ class DbAdapter {
     }
 
     async runMigrations() {
-        if (!this.config.mgrEnabled) {
+        if (!this.config.migrationsEnabled) {
             return;
         }
         await exec(`/bin/sh ${__dirname}/migration-runner.sh`, (error, stdout, stderr) => {

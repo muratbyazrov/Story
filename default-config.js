@@ -7,6 +7,7 @@ module.exports = {
         port: 5432,
         database: 'story-database',
         schema: 'story-schema',
+        migrationsEnabled: false,
     },
     http: {
         host: 'http-story-host',
