@@ -1,2 +1,2 @@
 cd ./src/db;
-db-migrate up;
+db-migrate up -e "$ENV";
