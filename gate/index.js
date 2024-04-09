@@ -7,10 +7,11 @@ const {ValidationError, NotFoundError} = require('../errors');
 const {token} = require("../token");
 
 class Gate {
-    constructor(config, controllers) {
+    constructor(config, entities) {
         this.controllers = {};
-        for (const {Controller, domain} of controllers) {
+        for (const {domain, Controller, Service} of entities) {
             this.controllers[domain] = new Controller(config);
+            this.controllers[domain].service = new Service(config);
         }
     }
 
