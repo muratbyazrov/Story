@@ -36,10 +36,10 @@ class Story {
 
     /**
      * Initialize the gate with configuration and controllers.
-     * @param {Array<Object>} controllers - An array of controller objects.
+     * @param {Array<Object>} entities - An array of controller objects.
      */
-    gateInit(controllers) {
-        this.gate = new Gate(this.config, controllers);
+    gateInit(entities) {
+        this.gate = new Gate(this.config, entities);
     }
 
     /** Initialize adapters */
