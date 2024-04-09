@@ -14,6 +14,7 @@ const {token} = require("../token");
  * Each object in the array must have the following structure:
  * @param {string} entities.domain - The domain of the controller.
  * @param {Controller} entities.Controller - The controller class.
+ * @param {Service} entities.Controller.service - The service instance associated with the controller.
  * @param {Service} entities.Service - The service class.
  */
 class Gate {
