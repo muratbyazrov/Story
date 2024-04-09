@@ -9,8 +9,8 @@ const {token} = require("../token");
 class Gate {
     constructor(config, controllers) {
         this.controllers = {};
-        for (const {EntityController, domain} of controllers) {
-            this.controllers[domain] = new EntityController(config);
+        for (const {Controller, domain} of controllers) {
+            this.controllers[domain] = new Controller(config);
         }
     }
 
