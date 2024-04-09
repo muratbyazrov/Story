@@ -6,6 +6,16 @@ const {gateSchema} = require('./gate-schema.js');
 const {ValidationError, NotFoundError} = require('../errors');
 const {token} = require("../token");
 
+/**
+ * Constructs an instance of GateManager.
+ * @constructor
+ * @param {Object} config - Configuration object.
+ * @param {Array<Object>} entities - An array of controller objects.
+ * Each object in the array must have the following structure:
+ * @param {string} entities.domain - The domain of the controller.
+ * @param {Controller} entities.Controller - The controller class.
+ * @param {Service} entities.Service - The service class.
+ */
 class Gate {
     constructor(config, entities) {
         this.controllers = {};
