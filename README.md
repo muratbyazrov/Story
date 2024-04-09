@@ -109,7 +109,7 @@ module.exports = {
         port: 5432,
         database: 'story-database',
         schema: 'story-schema',
-        migrationsEnabled: false,
+        runMigrations: false,
     },
     http: {
         host: 'http-story-host',
@@ -413,73 +413,44 @@ createMessage(data)
 
 Все поля из конфигурации более подробно описаны [здесь](#Rmq-Adapter)
 
-```js
-{
+```javascript
+module.exports = {
     rmq: {
-        connect: { // Настройки подключения
-            host: '127.10.10.11',           // По умолчанию localhost
-                port
-        :
-            5672,                     // По умолчанию 5672
-                queueName
-        :
-            'cats',              // По умолчанию 5672
-                user
-        :
-            'test',                   // По умолчанию story
-                password
-        :
-            'test',               // По умолчанию story
-        }
-    ,
-        consume: {                          // Настройки прослушки сообщений
-            exchange: 'cats',               // Название обменника. По умолчанию 'story'
-                exchangeType
-        :
-            'direct',         // Тип обменника. По умолчанию 'fanout'
-                exchangeDurable
-        :
-            false,         // Сохранять ли состояние обмменика после отключение сервера rabbit. По умолчанию false
-                bindPattern
-        :
-            'cats_pattern',     // Паттерн (строка), по которому надо привязывать обменники с очередями
-                queue
-        :
-            'cats',                  // Имя очереди, которую будем слушать. Если не указать, название будет сгенерировано
-                queueDurable
-        :
-            false,            // Сохранять ли состояние очереди после отключение сервера rabbit. По умолчанию false 
-                noAck
-        :
-            true,                    // Автоматическое подтверждение (или нет) сообщений
-                prefetchCount
-        :
-            1,               // Максимальное количество сообщений, принимаемых потребителем за раз
-                xMessageTtl
-        :
-            10 * 60 * 1000,    // время жизни сообщений в миллисекундах
-                selfAck
-        :
-            true,                  // Подписывать и подтвреждать собственные сообщения
-        }
-    ,
-        publish: {                          // Настройки отправки сообщений
-            persistent: true,               // Сохранять сообщения на диске сервера rabbit или нет
-                exchanges
-        :
-            {                    // Обменники, в которые публишим сообщения 
+        connect: { 
+            // Настройки подключения
+            host: '127.10.10.11',   // По умолчанию localhost
+            port: 5672,             // По умолчанию 5672
+            queueName: 'cats',      // По умолчанию 5672
+            user: 'test',           // По умолчанию story
+            password: 'test',       // По умолчанию story
+        },
+        consume: {                  
+            // Настройки прослушки сообщений
+            exchange: 'cats',                       // Название обменника. По умолчанию 'story'
+            exchangeType: 'direct',                 // Тип обменника. По умолчанию 'fanout'
+            exchangeDurable: false,                 // Сохранять ли состояние обменника после отключения сервера RabbitMQ. По умолчанию false
+            bindPattern: 'cats_pattern',            // Паттерн (строка), по которому надо привязывать обменники с очередями
+            queue: 'cats',                          // Имя очереди, которую будем слушать. Если не указать, название будет сгенерировано
+            queueDurable: false,                    // Сохранять ли состояние очереди после отключения сервера RabbitMQ. По умолчанию false 
+            noAck: true,                            // Автоматическое подтверждение (или нет) сообщений
+            prefetchCount: 1,                       // Максимальное количество сообщений, принимаемых потребителем за раз
+            xMessageTtl: 10 * 60 * 1000,           // Время жизни сообщений в миллисекундах
+            selfAck: true,                          // Подписывать и подтверждать собственные сообщения
+        },
+        publish: {                                  
+            // Настройки отправки сообщений
+            persistent: true,                      // Сохранять сообщения на диске сервера RabbitMQ или нет
+            exchanges: {                          
+                // Обменники, в которые публикуем сообщения 
                 dogs: {
-                    exchange: 'story',      // Название обменника
-                        routingKey
-                :
-                    'account',  // Ключ маршрутизации. Работает в паре с bindPattern
+                    exchange: 'story',             // Название обменника
+                    routingKey: 'account',         // Ключ маршрутизации. Работает в паре с bindPattern
                 }
             }
         }
-    ,
     }
-,
 }
+
 ```
 
 Пример публикации сообщения в rmq
@@ -581,24 +552,16 @@ db-migrate up --config ./database.development.json -e pg -m ./migrations
 Рассмотрим ещё раз конфигурационный файл и в нем настройку работы с токеном:
 
 ```js
-{
-    token: {
-        enabled: true,
-            key
-    :
-        'token-key',
-            expiresIn
-    :
-        60 * 1000,
-            uncheckMethods
-    :
-        {
-            cats: ['signIn', 'creteCat'],
-        }
-    ,
+module.exports = {
+  token: {
+    enabled: true,
+      key: 'token-key',
+      expiresIn: 60 * 1000,
+      uncheckMethods: {
+      cats: ['signIn', 'createCat'],
     }
-,
-}
+  }
+};
 ```
 
 Давайте разберем подробнее каждую настройку:
