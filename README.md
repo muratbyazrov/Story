@@ -187,6 +187,7 @@ module.exports = {
 // app.js
 const {Story} = require('story-system');
 const {CatsController} = require('./src/entities/cats/cats-controller.js');
+const {CatsService} = require('./src/entities/cats/cats-service.js');
 
 class App {
     constructor() {
@@ -194,7 +195,7 @@ class App {
         Story.adaptersInit(); // Запускаются адаптеры, такие как адаптер к Postgres и RabbitMQ
         Story.protocolsInit(); // Запускаются сетевые протоколы (http, ws)
         Story.gateInit([
-            {EntityController: CatsControllerController, domain: 'cats'},
+            {domain: 'cats', Controller: CatsControllerController, Service: CatsService},
         ]);
     }
 }
