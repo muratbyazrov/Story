@@ -10,7 +10,8 @@ class Gate {
     constructor(config, controllers) {
         this.controllers = {};
         for (const {EntityController, domain} of controllers) {
-            this.controllers[domain] = new EntityController(config);
+            this.controllers[domain] = new EntityController();
+            this.controllers[domain].config = config;
         }
     }
 
