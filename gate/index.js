@@ -4,7 +4,7 @@ const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
 const {ValidationError, NotFoundError} = require('../errors');
-const {token} = require("../token");
+const {token} = require('../token');
 
 /**
  * Constructs an instance of GateManager.
@@ -27,30 +27,30 @@ class Gate {
     }
 
     async run(request, protocol) {
+        let data;
+        if (utils.isObject(request)) {
+            data = request;
+        } else if (utils.isJson(request)) {
+            data = JSON.parse(request);
+        } else {
+            throw new ValidationError('Request error. Maybe request is not JSON');
+        }
+
+        logger.info({[`Got ${protocol} request`]: data});
+        validator.validate(data, gateSchema);
+        const tokenData = await token.checkToken(data);
+
+        if (!this.controllers[data.domain]) {
+            throw new NotFoundError('Incorrect domain');
+        }
+        if (!this.controllers[data.domain][data.event]) {
+            throw new NotFoundError('Method (event) not found');
+        }
+        if (request.error) {
+            throw request.error;
+        }
+
         try {
-            let data;
-            if (utils.isObject(request)) {
-                data = request;
-            } else if (utils.isJson(request)) {
-                data = JSON.parse(request);
-            } else {
-                throw new ValidationError('Request error. Maybe request is not JSON');
-            }
-
-            logger.info({[`Got ${protocol} request`]: data});
-            validator.validate(data, gateSchema);
-            const tokenData = await token.checkToken(data);
-
-            if (!this.controllers[data.domain]) {
-                throw new NotFoundError('Incorrect domain');
-            }
-            if (!this.controllers[data.domain][data.event]) {
-                throw new NotFoundError('Method (event) not found');
-            }
-            if (request.error) {
-                throw request.error;
-            }
-
             const result = response.format(request, await this.controllers[data.domain][data.event](data, tokenData));
             logger.info({[`Send ${protocol} response`]: result});
             return result;
