@@ -41,13 +41,13 @@ class WsAdapter {
     }
 
     async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
-        const wsClients = sessionId ? [this.wsClients.get(sessionId)] : this.wsClients;
-        if (!wsClients.length) {
-            throw new NotFoundError('No ws-clients to send the message')
-        }
-        logger.info({[`Send WS message to ${sessionId || 'multiple clients'}`]: message});
-
         try {
+            const wsClients = sessionId ? [this.wsClients.get(sessionId)] : [...this.wsClients.keys()];
+            if (!wsClients.length) {
+                throw new NotFoundError('No ws-clients to send the message')
+            }
+            logger.info({[`Send WS message to ${sessionId}`]: message});
+
             const msg = response.format({domain, event}, message);
             for (const wsClient of wsClients) {
                 wsClient && await wsClient.send(JSON.stringify(msg));
