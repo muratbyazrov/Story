@@ -21,8 +21,8 @@ class Gate {
     constructor(config, entities) {
         this.controllers = {};
         for (const {domain, Controller, Service} of entities) {
-            this.controllers[domain] = new Controller(config);
-            this.controllers[domain].service = new Service(config);
+            const service = new Service(config);
+            this.controllers[domain] = new Controller(config, service);
         }
     }
 
