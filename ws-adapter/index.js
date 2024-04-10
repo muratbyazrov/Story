@@ -40,11 +40,17 @@ class WsAdapter {
     }
 
     async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
-        const wsClient = this.wsClients.get(sessionId);
-        logger.info({[`Send WS message to ${sessionId}`]: message});
+        const wsClients = sessionId ? [this.wsClients.get(sessionId)] : this.wsClients;
+        if (!wsClients.length) {
+            logger.info('No ws clients for send message');
+        }
+        logger.info({[`Send WS message to ${sessionId || 'multiple clients'}`]: message});
+
         try {
             const msg = response.format({domain, event}, message);
-            wsClient && await wsClient.send(JSON.stringify(msg));
+            for (const wsClient of wsClients) {
+                wsClient && await wsClient.send(JSON.stringify(msg));
+            }
         } catch (error) {
             logger.error(error.message);
         }
