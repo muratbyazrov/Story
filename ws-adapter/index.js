@@ -1,8 +1,8 @@
 const WebSocket = require('ws');
 const {v4} = require('uuid');
-const {logger} = require("../logger");
-const {response} = require("../response");
-const {NotFoundError} = require("../errors");
+const {logger} = require('../logger');
+const {response} = require('../response');
+const {NotFoundError} = require('../errors');
 
 class WsAdapter {
     constructor(config) {
@@ -16,7 +16,7 @@ class WsAdapter {
             this.wsServer.on('connection', wsClient => {
                 // 1. connect
                 const sessionId = v4();
-                logger.info(`WS client ${sessionId} is connected`)
+                logger.info(`WS client ${sessionId} is connected`);
                 wsClient.send(JSON.stringify({sessionId}));
                 this.wsClients.set(sessionId, wsClient);
 
@@ -41,17 +41,18 @@ class WsAdapter {
     }
 
     async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
+        logger.info({[`Sending ws-message to ${sessionId || 'multiple clients'}`]: message});
         try {
-            const wsClients = sessionId ? [this.wsClients.get(sessionId)] : [...this.wsClients.keys()];
+            const wsClients = sessionId ? [this.wsClients.get(sessionId)] : [...this.wsClients];
             if (!wsClients.length) {
-                throw new NotFoundError('No ws-clients to send the message')
+                throw new NotFoundError('No clients to send the message');
             }
-            logger.info({[`Send WS message to ${sessionId}`]: message});
 
             const msg = response.format({domain, event}, message);
             for (const wsClient of wsClients) {
-                wsClient && await wsClient.send(JSON.stringify(msg));
+                await wsClient.send(JSON.stringify(msg));
             }
+            logger.info({[`ws-message sended to ${sessionId || 'multiple clients'}`]: message});
         } catch (error) {
             logger.error(error.message);
         }
