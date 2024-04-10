@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const {v4} = require('uuid');
 const {logger} = require("../logger");
 const {response} = require("../response");
+const {NotFoundError} = require("../errors");
 
 class WsAdapter {
     constructor(config) {
@@ -42,7 +43,7 @@ class WsAdapter {
     async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
         const wsClients = sessionId ? [this.wsClients.get(sessionId)] : this.wsClients;
         if (!wsClients.length) {
-            logger.info('No ws clients for send message');
+            throw new NotFoundError('No ws-clients to send the message')
         }
         logger.info({[`Send WS message to ${sessionId || 'multiple clients'}`]: message});
 
