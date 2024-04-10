@@ -10,9 +10,9 @@ class WsAdapter {
         this.wsClients = new Map();
     }
 
-    run(callback) {
-        this.wsServer = new WebSocket.Server({...this.config});
+    async run(callback) {
         try {
+            this.wsServer = new WebSocket.Server({...this.config});
             this.wsServer.on('connection', wsClient => {
                 // 1. connect
                 const sessionId = v4();
@@ -31,7 +31,7 @@ class WsAdapter {
 
                 // 3. disconnect
                 wsClient.on('close', () => {
-                    this.wsClients.delete(wsClient);
+                    this.wsClients.delete(sessionId);
                     logger.info(`WS client ${sessionId} is disconnected`);
                 });
             });
@@ -43,7 +43,7 @@ class WsAdapter {
     async send(message, {sessionId = null, domain = 'story', event = 'story-method'}) {
         logger.info({[`Sending ws-message to ${sessionId || 'multiple clients'}`]: message});
         try {
-            const wsClients = sessionId ? [this.wsClients.get(sessionId)] : [...this.wsClients];
+            const wsClients = sessionId ? [this.wsClients.get(sessionId)] : Array.from(this.wsClients.values());
             if (!wsClients.length) {
                 throw new NotFoundError('No clients to send the message');
             }
@@ -52,7 +52,7 @@ class WsAdapter {
             for (const wsClient of wsClients) {
                 await wsClient.send(JSON.stringify(msg));
             }
-            logger.info({[`ws-message sended to ${sessionId || 'multiple clients'}`]: message});
+            logger.info({[`ws-message sent to ${sessionId || 'multiple clients'}`]: message});
         } catch (error) {
             logger.error(error.message);
         }
