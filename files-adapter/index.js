@@ -75,10 +75,10 @@ class FilesAdapter {
                         }
                     });
 
-                const {domain, event, token, data = {}} = req.headers;
+                const {domain, event, token, params = {}} = req.headers;
                 const result = await callback({
                     domain, event,
-                    params: {params: JSON.parse(data), files: {...req.file, filename}},
+                    params: {data: JSON.parse(params), files: {...req.file, filename}},
                     token,
                 });
                 res.send(result);
