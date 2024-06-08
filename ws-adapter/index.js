@@ -13,6 +13,7 @@ class WsAdapter {
     async run(callback) {
         try {
             this.wsServer = new WebSocket.Server({...this.config});
+            logger.info(`App listening WS (${this.config.ws.host}:${this.config.ws.port})`);
             this.wsServer.on('connection', wsClient => {
                 // 1. connect
                 const sessionId = v4();
