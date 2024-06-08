@@ -28,7 +28,7 @@ class HttpAdapter {
     run(callback) {
         const {host, port} = this.httpConfig;
         app.listen(port, host, () => {
-            logger.info(`App listening http (${host}:${port})`);
+            logger.info(`App listening HTTP (${host}:${port})`);
         });
         app.use(bodyParser.json());
         app.post(this.httpConfig.path, async (req, res) => res.send(await callback(req.body)));

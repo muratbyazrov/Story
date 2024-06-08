@@ -18,7 +18,7 @@ class RmqAdapter {
                 logger.error(error);
                 throw new RmqError(error);
             }
-            logger.info(`Connected to rmq (${host}:${port})`);
+            logger.info(`Connected to RMQ (${host}:${port})`);
             this.connection = connection;
             this.consume(callback);
         });
