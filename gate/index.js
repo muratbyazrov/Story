@@ -3,7 +3,7 @@ const {validator} = require('../validator');
 const {logger} = require('../logger');
 const {response} = require('../response');
 const {gateSchema} = require('./gate-schema.js');
-const {ValidationError, NotFoundError} = require('../errors');
+const {ValidationError, NotFoundError, InternalError} = require('../errors');
 const {token} = require('../token');
 
 /**
@@ -21,6 +21,7 @@ class Gate {
     constructor(config, entities) {
         this.controllers = {};
         for (const {domain, Controller, Service} of entities) {
+            this._checkDomainParams(domain, Controller, Service);
             const service = new Service(config);
             this.controllers[domain] = new Controller(config, service);
         }
@@ -57,6 +58,24 @@ class Gate {
             const error = response.format(request, err);
             logger.error({[`Send ${protocol} error`]: error});
             return error;
+        }
+    }
+
+    _checkDomainParams(domain, Controller, Service) {
+        if (!domain) {
+            const errorText = 'domain not specified in App.js';
+            logger.error(errorText);
+            throw new InternalError(errorText);
+        }
+        if (!Controller) {
+            const errorText = `Controller for domain "${domain}" not specified in App.js`;
+            logger.error(errorText);
+            throw new InternalError(errorText);
+        }
+        if (!Service) {
+            const errorText = `Service for domain "${domain}" not specified in App.js`;
+            logger.error(errorText);
+            throw new InternalError(errorText);
         }
     }
 }
