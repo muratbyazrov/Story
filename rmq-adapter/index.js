@@ -13,9 +13,11 @@ class RmqAdapter {
     run(callback) {
         const {connect: {host = 'localhost', port, user, password} = {}} = this.config;
         const opt = {credentials: amqp.credentials.plain(user, password)};
-        amqp.connect(`amqp://${host}:${port}`, opt, (error, connection) => {
+        const url = `amqp://${user}:${password}@${host}:${port}`;
+        logger.info(`Trying to connect to RMQ at ${url}`);
+        amqp.connect(url, opt, (error, connection) => {
             if (error) {
-                logger.error(error);
+                logger.error(`Failed to connect: ${error.message}`);
                 throw new RmqError(error);
             }
             logger.info(`Connected to RMQ (${host}:${port})`);
@@ -41,38 +43,44 @@ class RmqAdapter {
         } = this.config;
 
         selfAck && (this.signature = exchange + queue);
+        logger.info(`Creating channel...`);
         this.connection.createChannel((error, channel) => {
             if (error) {
-                logger.error(error.message);
+                logger.error(`Failed to create channel: ${error.message}`);
                 throw new RmqError(error);
             }
+            logger.info(`Channel created.`);
             this.channel = channel;
+            logger.info(`Asserting exchange ${exchange} of type ${exchangeType}`);
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
+            logger.info(`Asserting queue ${queue}`);
             channel.assertQueue(queue, {
-                    durable: queueDurable,
-                    arguments: {
-                        "x-message-ttl": xMessageTtl
-                    }
-                },
-                (error, q) => {
-                    if (error) {
-                        throw new RmqError(error.message);
-                    }
-                    channel.bindQueue(q.queue, exchange, bindPattern);
-                    try {
-                        channel.consume(q.queue, msg => {
-                            const {message, signature} = JSON.parse(msg.content.toString());
-                            if (signature === this.signature && selfAck) {
-                                return channel.ack(msg);
-                            }
-                            callback(message);
-                            channel.ack(msg);
-                        }, {noAck});
-                    } catch (err) {
-                        logger.error(err.message);
-                    }
-                },
-            );
+                durable: queueDurable,
+                arguments: {
+                    "x-message-ttl": xMessageTtl
+                }
+            }, (error, q) => {
+                if (error) {
+                    logger.error(`Failed to assert queue: ${error.message}`);
+                    throw new RmqError(error.message);
+                }
+                logger.info(`Queue asserted: ${q.queue}`);
+                logger.info(`Binding queue ${q.queue} to exchange ${exchange} with pattern ${bindPattern}`);
+                channel.bindQueue(q.queue, exchange, bindPattern);
+                try {
+                    logger.info(`Starting to consume messages from queue ${q.queue}`);
+                    channel.consume(q.queue, msg => {
+                        const {message, signature} = JSON.parse(msg.content.toString());
+                        if (signature === this.signature && selfAck) {
+                            return channel.ack(msg);
+                        }
+                        callback(message);
+                        channel.ack(msg);
+                    }, {noAck});
+                } catch (err) {
+                    logger.error(`Error during message consumption: ${err.message}`);
+                }
+            });
             channel.prefetch(prefetchCount);
         });
     }
@@ -85,10 +93,11 @@ class RmqAdapter {
         const {publish: {persistent = false} = {}} = this.config;
         const msg = JSON.stringify({message, signature: this.signature});
         try {
-            logger.info({'Send rmq request': message});
+            logger.info(`Publishing message to exchange ${exchange} with routing key ${routingKey}`);
             this.channel.publish(exchange, routingKey, Buffer.from(msg), {persistent});
+            logger.info(`Message published: ${message}`);
         } catch (err) {
-            logger.error(err.message);
+            logger.error(`Failed to publish message: ${err.message}`);
             throw new RmqError(err.message);
         }
     }
