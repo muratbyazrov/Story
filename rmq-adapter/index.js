@@ -43,7 +43,6 @@ class RmqAdapter {
         } = this.config;
 
         selfAck && (this.signature = exchange + queue);
-        logger.info(`Creating channel...`);
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(`Failed to create channel: ${error.message}`);
@@ -51,9 +50,7 @@ class RmqAdapter {
             }
             logger.info(`Channel created.`);
             this.channel = channel;
-            logger.info(`Asserting exchange ${exchange} of type ${exchangeType}`);
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
-            logger.info(`Asserting queue ${queue}`);
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
@@ -61,11 +58,8 @@ class RmqAdapter {
                 }
             }, (error, q) => {
                 if (error) {
-                    logger.error(`Failed to assert queue: ${error.message}`);
                     throw new RmqError(error.message);
                 }
-                logger.info(`Queue asserted: ${q.queue}`);
-                logger.info(`Binding queue ${q.queue} to exchange ${exchange} with pattern ${bindPattern}`);
                 channel.bindQueue(q.queue, exchange, bindPattern);
                 try {
                     logger.info(`Starting to consume messages from queue ${q.queue}`);
