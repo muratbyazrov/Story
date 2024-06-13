@@ -48,7 +48,6 @@ class RmqAdapter {
                 logger.error(`Failed to create channel: ${error.message}`);
                 throw new RmqError(error);
             }
-            logger.info(`Channel created.`);
             this.channel = channel;
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
             channel.assertQueue(queue, {
