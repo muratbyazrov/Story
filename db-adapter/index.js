@@ -25,8 +25,10 @@ class DbAdapter {
 
     async runMigrations() {
         if (!this.config.runMigrations) {
+            logger.info('Migrations is disabled');
             return;
         }
+        logger.info('Run migrations...');
         await exec(`/bin/sh ${__dirname}/migration-runner.sh`, (error, stdout, stderr) => {
             if (stdout) {
                 logger.info(stdout);
