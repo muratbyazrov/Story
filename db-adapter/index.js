@@ -14,13 +14,13 @@ class DbAdapter {
     }
 
     async connectPostgres() {
-        await this.client.connect(err => {
-            if (err) {
-                logger.info('postgres connect error', err.message);
-                throw new DbError(err.message);
-            }
+        try {
+            await this.client.connect();
             logger.info(`Connected to postgres (${this.config.host}:${this.config.port})`);
-        });
+        } catch (err) {
+            logger.info('postgres connect error', err.message);
+            throw new DbError(err.message);
+        }
     }
 
     async runMigrations() {
@@ -95,6 +95,5 @@ class DbAdapter {
         return query.replace(pattern, '$1');
     }
 }
-
 
 module.exports = {DbAdapter};
