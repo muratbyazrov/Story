@@ -47,7 +47,7 @@ class Story {
         const {db, filesAdapter: filesAdapterCfg, token: tokenConfig} = this.config;
 
         db &&
-        (this.dbAdapter = new DbAdapter(db).init());
+        (this.dbAdapter = new DbAdapter(db));
 
         if (filesAdapterCfg) {
             const {http, ws, rmq} = filesAdapterCfg.protocols;

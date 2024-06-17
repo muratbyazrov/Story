@@ -8,12 +8,9 @@ class DbAdapter {
     constructor(config) {
         this.config = config;
         this.client = new Client(config);
-    }
-
-    async init() {
-        await this.connectPostgres();
-        await this.runMigrations();
-        await this.setDbSearchPath();
+        this.connectPostgres();
+        this.runMigrations();
+        this.setDbSearchPath();
     }
 
     async connectPostgres() {
