@@ -7,6 +7,7 @@ const {TokenError} = require('./token-error.js');
 const {InternalError} = require('./internal-error.js');
 const {FilesAdapterError} = require('./files-adapter-error.js');
 const {BadRequestError} = require('./bad-request-error.js');
+const {Timeout} = require('./timeout');
 
 module.exports = {
     ValidationError,
@@ -18,10 +19,12 @@ module.exports = {
     InternalError,
     FilesAdapterError,
     BadRequestError,
+    Timeout,
     errors: {
         NotFoundError,
         Forbidden,
         ValidationError,
         BadRequestError,
+        Timeout,
     }
 };
