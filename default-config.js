@@ -13,7 +13,6 @@ module.exports = {
         host: 'http-story-host',
         port: 3000,
         path: '/story-example-api/v1',
-        ttl: 10000 // 10 sec
     },
     ws: {
         host: '192.168.100.142',
