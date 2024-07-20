@@ -1,11 +1,12 @@
 {
   "name": "story-system",
-  "version": "0.0.169",
+  "version": "0.0.170",
   "private": true,
   "dependencies": {
     "amqplib": "^0.10.4",
     "body-parser": "^1.20.2",
     "cookie-parser": "~1.4.6",
+    "cors": "^2.8.5",
     "db-migrate-pg": "^1.5.2",
     "dotenv": "^16.4.5",
     "express": "4.19.2",
