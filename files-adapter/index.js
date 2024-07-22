@@ -97,6 +97,43 @@ class FilesAdapter {
         app.use(getPath, express.static(destination)); // or `${path.dirname(require.main.filename)}/uploads`
     }
 
+    httpRunBase64(app, callback) {
+        const {
+            createPath,
+            getPath,
+            destination,
+            maxFileSizeMb,
+            imagesCompression: {
+                widthPx = null,
+                heightPx = null,
+            }
+        } = this.config;
+
+        app.post(createPath,
+            async (req, res) => {
+                const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
+                const result = await callback(req.body);
+
+                const {base64Image} = req.body;
+                const matches = base64Image.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+                if (!matches) {
+                    throw new BadRequestError('Invalid base64 format')
+                }
+
+                const buffer = Buffer.from(matches[2], 'base64');
+                const filePath = path.join(destination, filename);
+
+                fs.writeFile(filePath, buffer, (err) => {
+                    if (err) {
+                        throw new InternalError('Failed to save file');
+                    }
+
+                    res.send(result);
+                });
+            }
+        );
+    }
+
     /**
      * Start WebSocket server for processing files.
      */
