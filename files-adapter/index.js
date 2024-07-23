@@ -44,7 +44,7 @@ class FilesAdapter {
 
             const fileSizeInMB = req.file.size / (1024 * 1024);
             if (fileSizeInMB >= maxFileSizeMb) {
-                throw new BadRequestError('File is too large');
+                throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
             }
 
             if (!fs.existsSync(destination)) {
@@ -102,7 +102,13 @@ class FilesAdapter {
             const buffer = Buffer.from(matches[2], 'base64');
             const filePath = path.join(destination, filename);
 
+            // file maxsize checking
+            const fileSizeMb = buffer.length / (1024 * 1024);
+            if (fileSizeMb > maxFileSizeMb) {
+                throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
+            }
 
+            // compression
             await sharp(buffer)
                 .resize(widthPx, heightPx)
                 .toFile(filePath);
