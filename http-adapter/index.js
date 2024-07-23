@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors());
 const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const {filesAdapter} = require('../files-adapter');
+const multer = require("multer");
 
 /** @class */
 class HttpAdapter {
@@ -15,8 +15,6 @@ class HttpAdapter {
      * @param {number} httpConfig.port - The port on which the HTTP server should listen.
      * @param {string} httpConfig.path - The path on which the HTTP server should listen.
      * @param {object} [filesAdapterConfig] - Configuration for a file adapter.
-     * @param {object} [filesAdapterConfig.protocols] - Configuration for various protocols.
-     * @param {boolean} [filesAdapterConfig.protocols.http] - Configuration for HTTP protocol.
      */
     constructor(httpConfig, filesAdapterConfig) {
         this.httpConfig = httpConfig;
@@ -28,15 +26,46 @@ class HttpAdapter {
      * @param {function} callback - The callback function to be invoked when a POST request is received.
      */
     run(callback) {
-        const {host, port} = this.httpConfig;
+        const {host, port, cors: {allowedAllHosts, corsOptions}} = this.httpConfig;
+
+        // cors
+        if (allowedAllHosts) {
+            app.use(cors());
+        } else {
+            app.use(cors(corsOptions));
+        }
+
+        // server starting
         app.listen(port, host, () => {
             logger.info(`App listening HTTP (${host}:${port})`);
         });
-        app.use(bodyParser.json());
-        app.post(this.httpConfig.path, async (req, res) => res.send(await callback(req.body)));
 
-        this.filesAdapterConfig && this.filesAdapterConfig.protocols.http &&
-        filesAdapter.httpRun(app, callback);
+        app.use(bodyParser.json());
+
+        // standard requests
+        app.post(this.httpConfig.path, async (req, res) => {
+            res.send(await callback(req.body));
+        });
+
+        // files processing
+        if (this.filesAdapterConfig) {
+            const {createPath, createBase64Path, getPath, destination} = this.filesAdapterConfig;
+
+            // multipart
+            const storage = multer.memoryStorage();
+            const upload = multer({storage: storage});
+            app.post(createPath, upload.single('image'), async (req, res) => {
+                res.send(await filesAdapter.multipartProcessing(req, res, callback));
+            });
+
+            // base64
+            app.post(createBase64Path, async (req, res) => {
+                res.send(await filesAdapter.base64Processing(req, res, callback));
+            });
+
+            // get
+            app.use(getPath, express.static(destination)); // or `${path.dirname(require.main.filename)}/uploads`
+        }
     }
 }
 

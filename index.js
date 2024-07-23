@@ -44,17 +44,13 @@ class Story {
 
     /** Initialize adapters */
     adaptersInit() {
-        const {db, filesAdapter: filesAdapterCfg, token: tokenConfig} = this.config;
+        const {db: dbConfig, filesAdapter: filesAdapterCfg, token: tokenConfig} = this.config;
 
-        db &&
-        (this.dbAdapter = new DbAdapter(db));
+        dbConfig &&
+        (this.dbAdapter = new DbAdapter(dbConfig));
 
-        if (filesAdapterCfg) {
-            const {http, ws, rmq} = filesAdapterCfg.protocols;
-            if (http || ws || rmq) {
-                filesAdapter.init(filesAdapterCfg);
-            }
-        }
+        filesAdapterCfg &&
+        filesAdapter.init(filesAdapterCfg);
 
         tokenConfig &&
         token.init(this.config);

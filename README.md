@@ -172,11 +172,6 @@ module.exports = {
             widthPx: null,
             heightPx: null,
         },
-        protocols: {
-            http: false,
-            ws: false,
-            rmq: false,
-        },
     },
 };
 ```
