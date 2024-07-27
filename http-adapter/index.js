@@ -72,7 +72,7 @@ class HttpAdapter {
                 }
             });
 
-            // base64 processing
+            // base64
             app.post(createBase64Path, async (req, res) => {
                 try {
                     res.send(await filesAdapter.base64Processing(req, res, callback));
