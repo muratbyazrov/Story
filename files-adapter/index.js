@@ -37,46 +37,37 @@ class FilesAdapter {
             }
         } = this.config;
 
-        try {
-            if (!req.file) {
-                throw new BadRequestError('File is not specify');
-            }
-
-            const fileSizeInMB = req.file.size / (1024 * 1024);
-            if (fileSizeInMB >= maxFileSizeMb) {
-                throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
-            }
-
-            if (!fs.existsSync(destination)) {
-                fs.mkdirSync(destination, {recursive: true});
-            }
-
-            const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
-            await sharp(req.file.buffer)
-                .resize(widthPx, heightPx)
-                .toFile(path.join(destination, filename), (err, info) => {
-                    if (err) {
-                        throw new InternalError(err);
-                    } else {
-                        logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
-                    }
-                });
-
-            const {domain, event, token} = req.headers;
-            const {params = {}} = req.body;
-            return await callback({
-                domain, event,
-                params: {data: JSON.parse(params), files: {...req.file, filename}},
-                token,
-            });
-        } catch (error) {
-            const {domain, event, token} = req.headers;
-            return await callback({
-                domain, event, token,
-                params: {},
-                error
-            });
+        if (!req.file) {
+            throw new BadRequestError('File is not specify');
         }
+
+        const fileSizeInMB = req.file.size / (1024 * 1024);
+        if (fileSizeInMB >= maxFileSizeMb) {
+            throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
+        }
+
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination, {recursive: true});
+        }
+
+        const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
+        await sharp(req.file.buffer)
+            .resize(widthPx, heightPx)
+            .toFile(path.join(destination, filename), (err, info) => {
+                if (err) {
+                    throw new InternalError(err);
+                } else {
+                    logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
+                }
+            });
+
+        const {domain, event, token} = req.headers;
+        const {params = {}} = req.body;
+        return await callback({
+            domain, event,
+            params: {data: JSON.parse(params), files: {...req.file, filename}},
+            token,
+        });
     }
 
     async base64Processing(req, res, callback) {
@@ -90,58 +81,54 @@ class FilesAdapter {
             }
         } = this.config;
 
-        try {
-            if (!req.body.params) {
-                throw new BadRequestError('"params" must be specified in request body');
-            }
-
-            const {base64File} = req.body.params;
-            if (!base64File) {
-                throw new BadRequestError('"base64File" must be specified in request params');
-            }
-
-            const matches = base64File.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
-            if (!matches) {
-                throw new BadRequestError('Invalid base64 format');
-            }
-
-            const mimeType = matches[1];
-            const base64Data = matches[2];
-            const extension = mime.extension(mimeType);
-            if (!extension) {
-                throw new BadRequestError('Unable to determine file extension');
-            }
-
-            const filename = `${Date.now()}.${extension}`;
-            const result = await callback({...req.body, params: {...req.body.params, filename}});
-
-            const buffer = Buffer.from(base64Data, 'base64');
-            const filePath = path.join(destination, filename);
-
-            // file maxsize checking
-            const fileSizeMb = buffer.length / (1024 * 1024);
-            if (fileSizeMb > maxFileSizeMb) {
-                throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
-            }
-
-            // compression
-            if (imagesCompressionEnabled) {
-                await sharp(buffer)
-                    .resize(widthPx, heightPx)
-                    .toFile(filePath);
-            }
-
-            fs.writeFile(filePath, buffer, (err) => {
-                if (err) {
-                    throw new InternalError('Failed to save file');
-                }
-
-                logger.info(`The image has been successfully uploaded and compressed: ${filePath}`);
-                return result;
-            });
-        } catch (error) {
-            throw new InternalError(error);
+        if (!req.body.params) {
+            throw new BadRequestError('"params" must be specified in request body');
         }
+
+        const {base64File} = req.body.params;
+        if (!base64File) {
+            throw new BadRequestError('"base64File" must be specified in request params');
+        }
+
+        const matches = base64File.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+        if (!matches) {
+            throw new BadRequestError('Invalid base64 format');
+        }
+
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        const extension = mime.extension(mimeType);
+        if (!extension) {
+            throw new BadRequestError('Unable to determine file extension');
+        }
+
+        const filename = `${Date.now()}.${extension}`;
+        const result = await callback({...req.body, params: {...req.body.params, filename}});
+
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filePath = path.join(destination, filename);
+
+        // file maxsize checking
+        const fileSizeMb = buffer.length / (1024 * 1024);
+        if (fileSizeMb > maxFileSizeMb) {
+            throw new BadRequestError(`File size exceeds the maximum limit of ${maxFileSizeMb} MB`);
+        }
+
+        // compression
+        if (imagesCompressionEnabled) {
+            await sharp(buffer)
+                .resize(widthPx, heightPx)
+                .toFile(filePath);
+        }
+
+        fs.writeFile(filePath, buffer, (err) => {
+            if (err) {
+                throw new InternalError('Failed to save file');
+            }
+
+            logger.info(`The image has been successfully uploaded and compressed: ${filePath}`);
+            return result;
+        });
     }
 
     /**
