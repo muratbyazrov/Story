@@ -40,11 +40,20 @@ class HttpAdapter {
             logger.info(`App listening HTTP (${host}:${port})`);
         });
 
-        app.use(bodyParser.json());
+        try {
+            app.use(bodyParser.json());
+        } catch (error) {
+            logger.error(error);
+        }
 
         // standard requests
         app.post(this.httpConfig.path, async (req, res) => {
-            res.send(await callback(req.body));
+            try {
+                res.send(await callback(req.body));
+            } catch (error) {
+                logger.error(error);
+                res.status(500).send('Internal Server Error');
+            }
         });
 
         // files processing
@@ -55,12 +64,22 @@ class HttpAdapter {
             const storage = multer.memoryStorage();
             const upload = multer({storage: storage});
             app.post(createPath, upload.single('image'), async (req, res) => {
-                res.send(await filesAdapter.multipartProcessing(req, res, callback));
+                try {
+                    res.send(await filesAdapter.multipartProcessing(req, res, callback));
+                } catch (error) {
+                    logger.error(error);
+                    res.status(500).send('Internal Server Error');
+                }
             });
 
-            // base64
+            // base64 processing
             app.post(createBase64Path, async (req, res) => {
-                res.send(await filesAdapter.base64Processing(req, res, callback));
+                try {
+                    res.send(await filesAdapter.base64Processing(req, res, callback));
+                } catch (error) {
+                    logger.error(error);
+                    res.status(500).send('Internal Server Error');
+                }
             });
 
             // get
