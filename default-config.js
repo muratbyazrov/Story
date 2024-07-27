@@ -77,6 +77,7 @@ module.exports = {
         getPath: '/story-api/v1/get',
         destination: `${__dirname}/uploads`,
         imagesCompression: {
+            enabled: false,
             widthPx: null,
             heightPx: null,
         },

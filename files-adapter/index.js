@@ -84,22 +84,38 @@ class FilesAdapter {
             destination,
             maxFileSizeMb,
             imagesCompression: {
-                widthPx = null,
-                heightPx = null,
+                enabled: imagesCompressionEnabled,
+                widthPx,
+                heightPx,
             }
         } = this.config;
 
         try {
-            const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
-            const result = await callback(req.body);
+            if (!req.body.params) {
+                throw new BadRequestError('"params" must be specified in request body');
+            }
 
-            const {base64Image} = req.body;
-            const matches = base64Image.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+            const {base64File} = req.body.params;
+            if (!base64File) {
+                throw new BadRequestError('"base64File" must be specified in request params');
+            }
+
+            const matches = base64File.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
             if (!matches) {
                 throw new BadRequestError('Invalid base64 format');
             }
 
-            const buffer = Buffer.from(matches[2], 'base64');
+            const mimeType = matches[1];
+            const base64Data = matches[2];
+            const extension = mime.extension(mimeType);
+            if (!extension) {
+                throw new BadRequestError('Unable to determine file extension');
+            }
+
+            const filename = `${Date.now()}.${extension}`;
+            const result = await callback({...req.body, params: {...req.body.params, filename}});
+
+            const buffer = Buffer.from(base64Data, 'base64');
             const filePath = path.join(destination, filename);
 
             // file maxsize checking
@@ -109,9 +125,11 @@ class FilesAdapter {
             }
 
             // compression
-            await sharp(buffer)
-                .resize(widthPx, heightPx)
-                .toFile(filePath);
+            if (imagesCompressionEnabled) {
+                await sharp(buffer)
+                    .resize(widthPx, heightPx)
+                    .toFile(filePath);
+            }
 
             fs.writeFile(filePath, buffer, (err) => {
                 if (err) {
@@ -122,7 +140,7 @@ class FilesAdapter {
                 return result;
             });
         } catch (error) {
-            throw new InternalError(`Failed to save file: ${error}`);
+            throw new InternalError(error);
         }
     }
 
