@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 const {TokenError} = require("../errors");
 
 class Token {
-    init({token}) {
-        this.config = token;
+    init(config) {
+        this.config = config;
     }
 
     async generateToken(data = {}) {

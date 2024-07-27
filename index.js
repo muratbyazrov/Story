@@ -44,7 +44,7 @@ class Story {
 
     /** Initialize adapters */
     adaptersInit() {
-        const {db: dbConfig, filesAdapter: filesAdapterCfg, token: tokenConfig} = this.config;
+        const {db: dbConfig, filesAdapter: filesAdapterCfg, token: tokenCfg} = this.config;
 
         dbConfig &&
         (this.dbAdapter = new DbAdapter(dbConfig));
@@ -52,24 +52,24 @@ class Story {
         filesAdapterCfg &&
         filesAdapter.init(filesAdapterCfg);
 
-        tokenConfig &&
-        token.init(this.config);
+        tokenCfg &&
+        token.init(tokenCfg);
     }
 
     /** Initialize communication protocols */
     protocolsInit() {
-        const {http, ws, rmq, filesAdapter} = this.config;
+        const {http: httpCfg, ws: wsCfg, rmq: rmqCfg, filesAdapter: filesAdapterCfg} = this.config;
 
-        http &&
-        (this.httpAdapter = new HttpAdapter(http, filesAdapter)) &&
+        httpCfg &&
+        (this.httpAdapter = new HttpAdapter(httpCfg, filesAdapterCfg)) &&
         this.httpAdapter.run(request => this.gate.run(request, 'http'));
 
-        ws &&
-        (this.wsAdapter = new WsAdapter(ws)) &&
+        wsCfg &&
+        (this.wsAdapter = new WsAdapter(wsCfg)) &&
         this.wsAdapter.run(request => this.gate.run(request, 'ws'));
 
-        rmq &&
-        (this.rmqAdapter = new RmqAdapter(rmq)) &&
+        rmqCfg &&
+        (this.rmqAdapter = new RmqAdapter(rmqCfg)) &&
         this.rmqAdapter.run(request => this.gate.run(request, 'rmq'));
     }
 }
