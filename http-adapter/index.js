@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const {filesAdapter} = require('../files-adapter');
 const multer = require('multer');
+const {responseFabric} = require('../response-fabric');
 
 /** @class */
 class HttpAdapter {
@@ -58,7 +59,8 @@ class HttpAdapter {
                 res.send(await callback(req.body));
             } catch (error) {
                 logger.error(error);
-                res.status(500).send('Internal Server Error');
+                const response = responseFabric.build({}, error);
+                res.send(response);
             }
         });
 
@@ -74,7 +76,8 @@ class HttpAdapter {
                     res.send(await filesAdapter.multipartProcessing(req, res, callback));
                 } catch (error) {
                     logger.error(error);
-                    res.status(500).send('Internal Server Error');
+                    const response = responseFabric.build({}, error);
+                    res.send(response);
                 }
             });
 
@@ -84,7 +87,8 @@ class HttpAdapter {
                     res.send(await filesAdapter.base64Processing(req, res, callback));
                 } catch (error) {
                     logger.error(error);
-                    res.status(500).send('Internal Server Error');
+                    const response = responseFabric.build({}, error);
+                    res.send(response);
                 }
             });
 

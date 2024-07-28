@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const {v4} = require('uuid');
 const {logger} = require('../logger');
-const {response} = require('../response');
+const {responseFabric} = require('../response-fabric');
 const {NotFoundError} = require('../errors');
 
 class WsAdapter {
@@ -49,7 +49,7 @@ class WsAdapter {
                 throw new NotFoundError('No clients to send the message');
             }
 
-            const msg = response.format({domain, event}, message);
+            const msg = responseFabric.build({domain, event}, message);
             for (const wsClient of wsClients) {
                 await wsClient.send(JSON.stringify(msg));
             }

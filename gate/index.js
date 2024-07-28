@@ -1,7 +1,7 @@
 const {utils} = require('../utils');
 const {validator} = require('../validator');
 const {logger} = require('../logger');
-const {response} = require('../response');
+const {responseFabric} = require('../response-fabric');
 const {gateSchema} = require('./gate-schema.js');
 const {ValidationError, NotFoundError, InternalError} = require('../errors');
 const {token} = require('../token');
@@ -31,12 +31,15 @@ class Gate {
     async run(request, protocol) {
         try {
             const {data, tokenData} = await this.validate(request, protocol);
-            const result = response.format(request, await this.controllers[data.domain][data.event](data, tokenData));
+            const result = responseFabric.build(
+                request,
+                await this.controllers[data.domain][data.event](data, tokenData),
+            );
             logger.info({[`Send ${protocol} response`]: result});
 
             return result;
         } catch (err) {
-            const error = response.format(request, err);
+            const error = responseFabric.build(request, err);
             logger.error({[`Send ${protocol} error`]: error});
             return error;
         }
