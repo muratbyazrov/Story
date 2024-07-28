@@ -24,13 +24,17 @@ class Utils {
         return JSON.parse(JSON.stringify(obj));
     }
 
-    overrideObjectField(obj, fieldName, newValue) {
+    overrideObjectField(obj, fields) {
         if (!this.isObject(obj)) {
             return obj;
         }
 
         const objectCopy = this.objectDeepCopy(obj);
-        this._overrideObjectField(objectCopy, fieldName, newValue);
+
+        for (const {name, newValue} of fields) {
+            this._overrideObjectField(objectCopy, name, newValue);
+        }
+
         return objectCopy;
     }
 
