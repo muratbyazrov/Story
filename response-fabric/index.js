@@ -3,8 +3,8 @@ class ResponseFabric {
         return {
             domain: domain || 'error',
             event: event || 'error',
-            data,
-            error,
+            ...data && data,
+            ...error && error,
         };
     }
 }
