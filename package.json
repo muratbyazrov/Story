@@ -1,6 +1,6 @@
 {
   "name": "story-system",
-  "version": "0.0.174",
+  "version": "0.0.175",
   "private": true,
   "dependencies": {
     "amqplib": "^0.10.4",

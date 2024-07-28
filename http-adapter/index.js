@@ -35,6 +35,10 @@ class HttpAdapter {
             app.use(cors(corsOptions));
         }
 
+        // Настройка размеров тела запроса
+        app.use(express.json({ limit: '10mb' }));
+        app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
         // server starting
         app.listen(port, host, () => {
             logger.info(`App listening HTTP (${host}:${port})`);

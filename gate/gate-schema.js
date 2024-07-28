@@ -1,13 +1,15 @@
-const {validator: {string}} = require('../validator');
+const {validator: {schemaItems: {string1, object}}} = require('../validator');
 
 const gateSchema = {
     id: '/Gate',
     type: 'object',
+    required: ['event', 'domain', 'params'],
     properties: {
-        event: string,
-        domain: string,
+        event: string1,
+        domain: string1,
+        params: object,
+        token: string1,
     },
-    required: ['event', 'domain'],
 };
 
 module.exports = {

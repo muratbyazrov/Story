@@ -4,6 +4,7 @@ const {ValidationError} = require('../errors');
 class Validator {
     constructor() {
         this.schemaItems = {
+            object: {type: 'object'},
             params: {type: 'object'},
             string: {type: 'string'},
             string1: {type: 'string', minLength: 1},

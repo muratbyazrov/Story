@@ -9,7 +9,7 @@ const {filesAdapter} = require('./files-adapter');
 const {HttpAdapter} = require('./http-adapter');
 const {WsAdapter} = require('./ws-adapter');
 const {RmqAdapter} = require('./rmq-adapter');
-const {Gate} = require('./gate');
+const {gate} = require('./gate');
 const {errors, NotFoundError} = require('./errors');
 const defaultConfig = require('./default-config');
 
@@ -39,7 +39,7 @@ class Story {
      * @param {Array<Object>} entities - An array of controller objects.
      */
     gateInit(entities) {
-        this.gate = new Gate(this.config, entities);
+        this.gate = gate.init(this.config, entities);
     }
 
     /** Initialize adapters */

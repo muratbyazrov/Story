@@ -4,6 +4,7 @@ const mime = require('mime-types');
 const sharp = require('sharp');
 const fs = require('fs');
 const {BadRequestError, InternalError} = require('../errors')
+const {gate} = require('../gate');
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
 class FilesAdapter {
@@ -71,6 +72,8 @@ class FilesAdapter {
     }
 
     async base64Processing(req, res, callback) {
+        await gate.validate(req.body);
+
         const {
             destination,
             maxFileSizeMb,
@@ -80,10 +83,6 @@ class FilesAdapter {
                 heightPx,
             }
         } = this.config;
-
-        if (!req.body.params) {
-            throw new BadRequestError('"params" must be specified in request body');
-        }
 
         const {base64File} = req.body.params;
         if (!base64File) {
