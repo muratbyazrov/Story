@@ -1,7 +1,11 @@
 class ResponseFabric {
-    build({domain = 'error', event = 'error'}, data = {}) {
-        const {isError, ..._data} = data;
-        return isError ? {domain, event, error: _data} : {domain, event, data};
+    build({domain, event, data, error}) {
+        return {
+            domain: domain || 'error',
+            event: event || 'error',
+            data,
+            error,
+        };
     }
 }
 

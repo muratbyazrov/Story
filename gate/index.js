@@ -31,15 +31,15 @@ class Gate {
     async run(request, protocol) {
         try {
             const {data, tokenData} = await this.validate(request, protocol);
-            const result = responseFabric.build(
-                request,
-                await this.controllers[data.domain][data.event](data, tokenData),
-            );
+            const result = responseFabric.build({
+                ...request,
+                data: await this.controllers[data.domain][data.event](data, tokenData),
+            });
             logger.info({[`Send ${protocol} response`]: result});
 
             return result;
         } catch (err) {
-            const error = responseFabric.build(request, err);
+            const error = responseFabric.build({error: err});
             logger.error({[`Send ${protocol} error`]: error});
             return error;
         }
