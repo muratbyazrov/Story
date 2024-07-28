@@ -1,4 +1,3 @@
-const {base} = require('db-migrate-pg');
 module.exports = {
     db: {
         // https://node-postgres.com/apis/client
@@ -87,9 +86,6 @@ module.exports = {
         },
     },
     logger: {
-        replacerList: [
-            {name: 'token', newValue: '***'},
-            {name: 'base^4Image', newValue: 'base64String...'},
-        ],
+        replacerList: [],
     },
 };

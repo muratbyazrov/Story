@@ -25,6 +25,10 @@ class Utils {
     }
 
     overrideObjectField(obj, fields) {
+        if (!fields.length) {
+            return obj;
+        }
+
         if (!this.isObject(obj)) {
             return obj;
         }
