@@ -7,22 +7,24 @@ class Utils {
             result = false;
         }
         return result;
-    };
+    }
 
     isObject(data) {
         return typeof data === 'object' && !Array.isArray(data) && data !== null;
-    };
+    }
 
     has(obj, keyName) {
         if (!obj) {
             return false;
         }
         return Object.prototype.hasOwnProperty.call(obj, keyName);
-    };
+    }
 
-    objectDeepCopy = (obj) => JSON.parse(JSON.stringify(obj));
+    objectDeepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
 
-    overrideObjectField = (obj, fieldName, newValue) => {
+    overrideObjectField(obj, fieldName, newValue) {
         if (!this.isObject(obj)) {
             return obj;
         }
@@ -30,9 +32,9 @@ class Utils {
         const objectCopy = this.objectDeepCopy(obj);
         this._overrideObjectField(objectCopy, fieldName, newValue);
         return objectCopy;
-    };
+    }
 
-    _overrideObjectField = (obj, fieldName, newValue) => {
+    _overrideObjectField(obj, fieldName, newValue) {
         if (!this.isObject(obj)) {
             return;
         }
@@ -46,7 +48,7 @@ class Utils {
                 obj[objKey] = newValue;
             }
         }
-    };
+    }
 
     mergeConfig(cfg1, cfg2) {
         const cfg3 = {};

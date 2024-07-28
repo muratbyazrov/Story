@@ -26,5 +26,5 @@ module.exports = {
         ValidationError,
         BadRequestError,
         Timeout,
-    }
+    },
 };

@@ -4,7 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const {filesAdapter} = require('../files-adapter');
-const multer = require("multer");
+const multer = require('multer');
 
 /** @class */
 class HttpAdapter {
@@ -14,6 +14,8 @@ class HttpAdapter {
      * @param {string} httpConfig.host - The host on which the HTTP server should listen.
      * @param {number} httpConfig.port - The port on which the HTTP server should listen.
      * @param {string} httpConfig.path - The path on which the HTTP server should listen.
+     * @param {object} httpConfig.requestOptions - Request options
+     * @param {object} httpConfig.cors - Cors options
      * @param {object} [filesAdapterConfig] - Configuration for a file adapter.
      */
     constructor(httpConfig, filesAdapterConfig) {
@@ -35,9 +37,9 @@ class HttpAdapter {
             app.use(cors(corsOptions));
         }
 
-        // Настройка размеров тела запроса
-        app.use(express.json({ limit: '10mb' }));
-        app.use(express.urlencoded({ limit: '10mb', extended: true }));
+        // Настройка запроса (размеров тела запроса)
+        app.use(express.json({...this.httpConfig.requestOptions}));
+        app.use(express.urlencoded({...this.httpConfig.requestOptions, extended: true}));
 
         // server starting
         app.listen(port, host, () => {
@@ -66,7 +68,7 @@ class HttpAdapter {
 
             // multipart
             const storage = multer.memoryStorage();
-            const upload = multer({storage: storage});
+            const upload = multer({storage});
             app.post(createPath, upload.single('image'), async (req, res) => {
                 try {
                     res.send(await filesAdapter.multipartProcessing(req, res, callback));
@@ -86,8 +88,8 @@ class HttpAdapter {
                 }
             });
 
-            // get
-            app.use(getPath, express.static(destination)); // or `${path.dirname(require.main.filename)}/uploads`
+            // get or `${path.dirname(require.main.filename)}/uploads`
+            app.use(getPath, express.static(destination));
         }
     }
 }

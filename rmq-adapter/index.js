@@ -1,6 +1,6 @@
 const amqp = require('amqplib/callback_api');
-const {logger} = require("../logger");
-const {RmqError} = require("../errors/rmq-error");
+const {logger} = require('../logger');
+const {RmqError} = require('../errors/rmq-error');
 
 class RmqAdapter {
     constructor(config) {
@@ -53,8 +53,8 @@ class RmqAdapter {
             channel.assertQueue(queue, {
                 durable: queueDurable,
                 arguments: {
-                    "x-message-ttl": xMessageTtl
-                }
+                    'x-message-ttl': xMessageTtl,
+                },
             }, (error, q) => {
                 if (error) {
                     throw new RmqError(error.message);
@@ -78,7 +78,7 @@ class RmqAdapter {
         });
     }
 
-    async publish({message, options}) {
+    publish({message, options}) {
         if (!options || !options.exchange) {
             throw new RmqError('options or options.exchange not specified');
         }

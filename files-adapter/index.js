@@ -1,9 +1,9 @@
-const {logger} = require("../logger");
+const {logger} = require('../logger');
 const path = require('path');
 const mime = require('mime-types');
 const sharp = require('sharp');
 const fs = require('fs');
-const {BadRequestError, InternalError} = require('../errors')
+const {BadRequestError, InternalError} = require('../errors');
 const {gate} = require('../gate');
 
 /** Class for processing files via HTTP, WebSocket, and RabbitMQ */
@@ -35,7 +35,7 @@ class FilesAdapter {
             imagesCompression: {
                 widthPx = null,
                 heightPx = null,
-            }
+            },
         } = this.config;
 
         if (!req.file) {
@@ -64,7 +64,7 @@ class FilesAdapter {
 
         const {domain, event, token} = req.headers;
         const {params = {}} = req.body;
-        return await callback({
+        return callback({
             domain, event,
             params: {data: JSON.parse(params), files: {...req.file, filename}},
             token,
@@ -81,7 +81,7 @@ class FilesAdapter {
                 enabled: imagesCompressionEnabled,
                 widthPx,
                 heightPx,
-            }
+            },
         } = this.config;
 
         const {base64File} = req.body.params;
@@ -120,7 +120,7 @@ class FilesAdapter {
                 .toFile(filePath);
         }
 
-        fs.writeFile(filePath, buffer, (err) => {
+        fs.writeFile(filePath, buffer, err => {
             if (err) {
                 throw new InternalError('Failed to save file');
             }

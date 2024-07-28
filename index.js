@@ -3,7 +3,7 @@ const {validator} = require('./validator');
 const {logger} = require('./logger');
 const {utils} = require('./utils');
 const {response} = require('./response');
-const {token} = require("./token");
+const {token} = require('./token');
 const {DbAdapter} = require('./db-adapter');
 const {filesAdapter} = require('./files-adapter');
 const {HttpAdapter} = require('./http-adapter');
@@ -30,6 +30,7 @@ class Story {
             throw new NotFoundError(`It is necessary to set the environment variable NODE_ENV`);
         }
         const configPath = path.join(`${path.dirname(require.main.filename)}`, `config.${process.env.NODE_ENV}.js`);
+        // eslint-disable-next-line global-require
         const config = require(configPath);
         this.config = utils.mergeConfig(config, defaultConfig);
     }

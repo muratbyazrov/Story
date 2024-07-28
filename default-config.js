@@ -13,6 +13,9 @@ module.exports = {
         host: 'http-story-host',
         port: 3000,
         path: '/story-example-api/v1',
+        requestOptions: {
+            limit: '1mb',
+        },
         cors: {
             corsOptions: {
                 origin: ['http://localhost:8081', 'http://example.com'],
@@ -20,8 +23,8 @@ module.exports = {
                 allowedHeaders: ['Content-Type', 'Authorization'],
                 credentials: true,
             },
-            allowedAllHosts: true
-        }
+            allowedAllHosts: true,
+        },
     },
     ws: {
         host: '192.168.100.142',
@@ -50,11 +53,11 @@ module.exports = {
         publish: {
             persistent: true,
             exchanges: {
-                storyExchange_1: {
+                storyExchange1: {
                     exchange: 'story-exchange',
                     routingKey: 'story-routing-key',
                 },
-                storyExchange_2: {
+                storyExchange2: {
                     exchange: 'story-exchange',
                     routingKey: 'story-routing-key',
                 },

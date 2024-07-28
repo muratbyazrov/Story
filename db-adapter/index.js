@@ -34,10 +34,10 @@ class DbAdapter {
                 logger.info(stdout);
             }
             if (stderr) {
-                logger.info(stderr)
+                logger.info(stderr);
             }
             if (error !== null) {
-                logger.error({"exec error": error});
+                logger.error({'exec error': error});
             }
         });
     }

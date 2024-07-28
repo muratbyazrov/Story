@@ -10,7 +10,7 @@ class WsAdapter {
         this.wsClients = new Map();
     }
 
-    async run(callback) {
+    run(callback) {
         try {
             this.wsServer = new WebSocket.Server({...this.config});
             logger.info(`App listening WS (${this.config.host}:${this.config.port})`);
