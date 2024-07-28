@@ -1,11 +1,12 @@
 const {utils} = require('../utils');
 
 class Logger {
+    configure({logger}) {
+        this.config = logger;
+    }
+
     info(data) {
-        const overrideData = utils.overrideObjectField(data, [
-            {name: 'token', newValue: '***'},
-            {name: 'base64File', newValue: 'base64String...'},
-        ]);
+        const overrideData = utils.overrideObjectField(data, this.config.replacerList);
         console.info(`(${new Date().toLocaleString()}) [INFO]: `, overrideData);
     }
 

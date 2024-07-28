@@ -33,6 +33,9 @@ class Story {
         // eslint-disable-next-line global-require
         const config = require(configPath);
         this.config = utils.mergeConfig(config, defaultConfig);
+
+        // logger configure
+        logger.configure(config);
     }
 
     /**
