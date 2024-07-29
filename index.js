@@ -32,10 +32,10 @@ class Story {
         const configPath = path.join(`${path.dirname(require.main.filename)}`, `config.${process.env.NODE_ENV}.js`);
         // eslint-disable-next-line global-require
         const config = require(configPath);
-        this.config = utils.mergeConfig(config, defaultConfig);
-
+        const mergedConfig = utils.mergeConfig(config, defaultConfig);
+        this.config = mergedConfig;
         // logger configure
-        logger.configure(config);
+        logger.configure(mergedConfig);
     }
 
     /**
