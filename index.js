@@ -35,7 +35,7 @@ class Story {
         const mergedConfig = utils.mergeConfig(config, defaultConfig);
         this.config = mergedConfig;
         // logger configure
-        logger.configure({mergedConfig});
+        logger.configure(mergedConfig);
     }
 
     /**
