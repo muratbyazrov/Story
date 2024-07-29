@@ -1,8 +1,9 @@
 const {utils} = require('../utils');
+const defaultConfig = require('../default-config');
 
 class Logger {
-    configure({logger}) {
-        this.config = logger;
+    configure(mergedConfig) {
+        this.config = mergedConfig.logger || defaultConfig.logger;
     }
 
     info(data) {
