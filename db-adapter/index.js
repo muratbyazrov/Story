@@ -47,6 +47,10 @@ class DbAdapter {
     }
 
     async execQuery({queryName, params, options = {}}) {
+        if (!queryName) {
+            throw new DbError('Query in not defined');
+        }
+
         const preparedQuery = this.getPreparedQuery(queryName, params);
         try {
             const result = await this.client.query(preparedQuery);
