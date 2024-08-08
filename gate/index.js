@@ -39,7 +39,7 @@ class Gate {
 
             return result;
         } catch (err) {
-            const error = responseFabric.build({error: err});
+            const error = responseFabric.build({...request, error: err});
             logger.error({[`Send ${protocol} error`]: error});
             return error;
         }

@@ -59,7 +59,7 @@ class HttpAdapter {
                 res.send(await callback(req.body));
             } catch (error) {
                 logger.error(error);
-                const response = responseFabric.build({error});
+                const response = responseFabric.build({...req.body, error});
                 res.send(response);
             }
         });
@@ -76,7 +76,7 @@ class HttpAdapter {
                     res.send(await filesAdapter.multipartProcessing(req, res, callback));
                 } catch (error) {
                     logger.error(error);
-                    const response = responseFabric.build({error});
+                    const response = responseFabric.build({...req.body, error});
                     res.send(response);
                 }
             });
@@ -87,7 +87,7 @@ class HttpAdapter {
                     res.send(await filesAdapter.base64Processing(req, res, callback));
                 } catch (error) {
                     logger.error(error);
-                    const response = responseFabric.build({error});
+                    const response = responseFabric.build({...req.body, error});
                     res.send(response);
                 }
             });
