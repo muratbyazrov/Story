@@ -104,6 +104,10 @@ class FilesAdapter {
         const filename = `${Date.now()}.${extension}`;
         const result = await callback({...req.body, params: {...req.body.params, filename}});
 
+        if (result.error) {
+            return result;
+        }
+
         const buffer = Buffer.from(base64Data, 'base64');
         const filePath = path.join(destination, filename);
 
@@ -126,8 +130,9 @@ class FilesAdapter {
             }
 
             logger.info(`The image has been successfully uploaded and compressed: ${filePath}`);
-            return result;
         });
+
+        return result;
     }
 
     /**
