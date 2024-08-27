@@ -31,6 +31,7 @@ class Gate {
     async run(request, protocol) {
         try {
             const {data, tokenData} = await this.validate(request, protocol);
+            logger.info({[`Got ${protocol} request`]: data});
             const result = responseFabric.build({
                 ...request,
                 data: await this.controllers[data.domain][data.event](data, tokenData),
@@ -45,7 +46,7 @@ class Gate {
         }
     }
 
-    async validate(request, protocol) {
+    async validate(request) {
         let data;
         if (utils.isObject(request)) {
             data = request;
@@ -55,7 +56,6 @@ class Gate {
             throw new ValidationError('Request error. Maybe request is not JSON');
         }
 
-        logger.info({[`Got ${protocol} request`]: data});
         validator.validate(data, gateSchema);
         const tokenData = await token.checkToken(data);
 
