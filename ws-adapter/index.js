@@ -49,7 +49,7 @@ class WsAdapter {
                 throw new NotFoundError('No clients to send the message');
             }
 
-            const msg = responseFabric.build({domain, event}, message);
+            const msg = responseFabric.build({domain, event, data: message});
             for (const wsClient of wsClients) {
                 await wsClient.send(JSON.stringify(msg));
             }
