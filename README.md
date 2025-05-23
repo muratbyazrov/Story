@@ -1,5 +1,5 @@
 ## Story
-<img src="./story.png" alt="Лого" width="350" height="200">
+<img src="./story.png" alt="Лого" width="350" height="350">
 
 - Story - фреймворк на базе *express.js* для быстрого создания приложений на *Node.js*
 - Работает с протоколами Http, Websockets, RabbitMQ
