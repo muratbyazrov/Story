@@ -1,26 +1,14 @@
 const {utils} = require('../utils');
 const {logger} = require('../logger');
-const {Client} = require('pg');
+const {Pool} = require('pg');
 const {exec} = require('child_process');
 const {DbError} = require('../errors');
 
 class DbAdapter {
     constructor(config) {
         this.config = config;
-        this.client = new Client(config);
-        this.connectPostgres();
+        this.pool = new Pool(config);
         this.runMigrations();
-        this.setDbSearchPath();
-    }
-
-    async connectPostgres() {
-        try {
-            await this.client.connect();
-            logger.info(`Connected to postgres (${this.config.host}:${this.config.port})`);
-        } catch (err) {
-            logger.info('postgres connect error', err.message);
-            throw new DbError(err.message);
-        }
     }
 
     async runMigrations() {
@@ -42,19 +30,22 @@ class DbAdapter {
         });
     }
 
-    async setDbSearchPath() {
-        await this.client.query(`SET SEARCH_PATH = '${this.config.schema}'`);
-    }
-
     async execQuery({queryName, params, options = {}}) {
         if (!queryName) {
-            throw new DbError('Query in not defined');
+            throw new DbError('Query is not defined');
         }
 
         const preparedQuery = this.getPreparedQuery(queryName, params);
+
         try {
-            const result = await this.client.query(preparedQuery);
-            return options.singularRow ? result.rows[0] : result.rows;
+            const client = await this.pool.connect();
+            try {
+                await client.query(`SET SEARCH_PATH = '${this.config.schema}'`);
+                const result = await client.query(preparedQuery);
+                return options.singularRow ? result.rows[0] : result.rows;
+            } finally {
+                client.release();
+            }
         } catch (err) {
             logger.error(err.message);
             throw new DbError(err.message);
