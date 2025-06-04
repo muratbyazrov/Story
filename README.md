@@ -540,7 +540,7 @@ db-migrate create <название миграции> --config ./database.json -
 
 ```shell
 # Накатить миграцию
-db-migrate up --config ./database.development.json -e pg -m ./migrations
+db-migrate up --config ./database.development.json -m ./migrations
 ```
 
 ## Работа с токеном
