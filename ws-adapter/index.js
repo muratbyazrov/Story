@@ -22,13 +22,13 @@ class WsAdapter {
                 this.wsClients.set(sessionId, wsClient);
 
                 // 2. callback
-                try {
-                    wsClient.on('message', async message => {
+                wsClient.on('message', async message => {
+                    try {
                         wsClient.send(JSON.stringify(await callback(message.toString())));
-                    });
-                } catch (error) {
-                    wsClient.send(`${new Date().toLocaleString()} | ${error.message}`);
-                }
+                    } catch (error) {
+                        wsClient.send(`${new Date().toLocaleString()} | ${error.message}`);
+                    }
+                });
 
                 // 3. disconnect
                 wsClient.on('close', () => {
@@ -45,12 +45,13 @@ class WsAdapter {
         logger.info({[`Sending ws-message to ${sessionId || 'multiple clients'}`]: message});
         try {
             const wsClients = sessionId ? [this.wsClients.get(sessionId)] : Array.from(this.wsClients.values());
-            if (!wsClients.length) {
+            const activeClients = wsClients.filter(Boolean);
+            if (!activeClients.length) {
                 throw new NotFoundError('No clients to send the message');
             }
 
             const msg = responseFabric.build({domain, event, data: message});
-            for (const wsClient of wsClients) {
+            for (const wsClient of activeClients) {
                 await wsClient.send(JSON.stringify(msg));
             }
             logger.info({[`ws-message sent to ${sessionId || 'multiple clients'}`]: message});

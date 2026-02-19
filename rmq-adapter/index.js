@@ -18,7 +18,7 @@ class RmqAdapter {
         amqp.connect(url, opt, (error, connection) => {
             if (error) {
                 logger.error(`Failed to connect: ${error.message}`);
-                throw new RmqError(error);
+                return;
             }
             logger.info(`Connected to RMQ (${host}:${port})`);
             this.connection = connection;
@@ -46,7 +46,7 @@ class RmqAdapter {
         this.connection.createChannel((error, channel) => {
             if (error) {
                 logger.error(`Failed to create channel: ${error.message}`);
-                throw new RmqError(error);
+                return;
             }
             this.channel = channel;
             channel.assertExchange(exchange, exchangeType, {durable: exchangeDurable});
@@ -57,18 +57,48 @@ class RmqAdapter {
                 },
             }, (error, q) => {
                 if (error) {
-                    throw new RmqError(error.message);
+                    logger.error(`Failed to assert queue: ${error.message}`);
+                    return;
                 }
                 channel.bindQueue(q.queue, exchange, bindPattern);
                 try {
                     logger.info(`Starting to consume messages from queue ${q.queue}`);
                     channel.consume(q.queue, msg => {
-                        const {message, signature} = JSON.parse(msg.content.toString());
-                        if (signature === this.signature && selfAck) {
-                            return channel.ack(msg);
+                        if (!msg) {
+                            return;
                         }
-                        callback(message);
-                        channel.ack(msg);
+
+                        let payload;
+                        try {
+                            payload = JSON.parse(msg.content.toString());
+                        } catch (err) {
+                            logger.error(`Invalid RMQ payload: ${err.message}`);
+                            if (!noAck) {
+                                channel.ack(msg);
+                            }
+                            return;
+                        }
+
+                        const {message, signature} = payload;
+                        if (signature === this.signature && selfAck) {
+                            if (!noAck) {
+                                channel.ack(msg);
+                            }
+                            return;
+                        }
+
+                        Promise.resolve(callback(message))
+                            .then(() => {
+                                if (!noAck) {
+                                    channel.ack(msg);
+                                }
+                            })
+                            .catch(err => {
+                                logger.error(`Error during message callback: ${err.message}`);
+                                if (!noAck) {
+                                    channel.nack(msg, false, true);
+                                }
+                            });
                     }, {noAck});
                 } catch (err) {
                     logger.error(`Error during message consumption: ${err.message}`);

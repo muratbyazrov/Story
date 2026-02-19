@@ -2,13 +2,15 @@ const {utils} = require('../utils');
 const {logger} = require('../logger');
 const {Pool} = require('pg');
 const {exec} = require('child_process');
+const {promisify} = require('util');
 const {DbError} = require('../errors');
+const execAsync = promisify(exec);
 
 class DbAdapter {
     constructor(config) {
         this.config = config;
         this.pool = new Pool(config);
-        this.runMigrations();
+        this.migrationsPromise = this.runMigrations();
     }
 
     async runMigrations() {
@@ -17,23 +19,25 @@ class DbAdapter {
             return;
         }
         logger.info('Run migrations...');
-        await exec(`/bin/sh ${__dirname}/migration-runner.sh`, (error, stdout, stderr) => {
+        try {
+            const {stdout, stderr} = await execAsync(`/bin/sh ${__dirname}/migration-runner.sh`);
             if (stdout) {
                 logger.info(stdout);
             }
             if (stderr) {
                 logger.info(stderr);
             }
-            if (error !== null) {
-                logger.error({'exec error': error});
-            }
-        });
+        } catch (error) {
+            logger.error({'exec error': error.message});
+            throw new DbError(error.message);
+        }
     }
 
     async execQuery({queryName, params, options = {}}) {
         if (!queryName) {
             throw new DbError('Query is not defined');
         }
+        await this.migrationsPromise;
 
         const preparedQuery = this.getPreparedQuery(queryName, params);
 

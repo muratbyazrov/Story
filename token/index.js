@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const {TokenError} = require("../errors");
+const {TokenError} = require('../errors');
 
 class Token {
     init(config) {
@@ -32,10 +32,10 @@ class Token {
     }
 
     async checkToken({token, domain, event}) {
-        if (!this.config) return true
+        if (!this.config) return true;
         const {enabled, uncheckMethods} = this.config;
-        if (!enabled) return true
-        if (uncheckMethods[domain]?.includes(event)) return true
+        if (!enabled) return true;
+        if (uncheckMethods?.[domain]?.includes(event)) return true;
         if (!token) throw new TokenError('Token must be specified');
 
         return this.decodeToken(token);

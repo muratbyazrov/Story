@@ -51,22 +51,34 @@ class FilesAdapter {
             fs.mkdirSync(destination, {recursive: true});
         }
 
-        const filename = `${Date.now()}.${mime.extension(req.file.mimetype)}`;
-        await sharp(req.file.buffer)
-            .resize(widthPx, heightPx)
-            .toFile(path.join(destination, filename), (err, info) => {
-                if (err) {
-                    throw new InternalError(err);
-                } else {
-                    logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
-                }
-            });
+        const extension = mime.extension(req.file.mimetype);
+        if (!extension) {
+            throw new BadRequestError('Unable to determine file extension');
+        }
+
+        const filename = `${Date.now()}.${extension}`;
+        try {
+            const info = await sharp(req.file.buffer)
+                .resize(widthPx, heightPx)
+                .toFile(path.join(destination, filename));
+            logger.info(`The image has been successfully uploaded: ${JSON.stringify(info)}`);
+        } catch (error) {
+            throw new InternalError(error.message || error);
+        }
 
         const {domain, event, token} = req.headers;
         const {params = {}} = req.body;
+        let parsedParams = params;
+        if (typeof params === 'string') {
+            try {
+                parsedParams = JSON.parse(params);
+            } catch (error) {
+                throw new BadRequestError('"params" must be valid JSON');
+            }
+        }
         return callback({
             domain, event,
-            params: {data: JSON.parse(params), files: {...req.file, filename}},
+            params: {data: parsedParams, files: {...req.file, filename}},
             token,
         });
     }
@@ -83,6 +95,10 @@ class FilesAdapter {
                 heightPx,
             },
         } = this.config;
+
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination, {recursive: true});
+        }
 
         const {base64File} = req.body.params;
         if (!base64File) {
@@ -118,19 +134,19 @@ class FilesAdapter {
         }
 
         // compression
-        if (imagesCompressionEnabled) {
-            await sharp(buffer)
-                .resize(widthPx, heightPx)
-                .toFile(filePath);
+        try {
+            if (imagesCompressionEnabled) {
+                await sharp(buffer)
+                    .resize(widthPx, heightPx)
+                    .toFile(filePath);
+            } else {
+                await fs.promises.writeFile(filePath, buffer);
+            }
+        } catch (error) {
+            throw new InternalError('Failed to save file');
         }
 
-        fs.writeFile(filePath, buffer, err => {
-            if (err) {
-                throw new InternalError('Failed to save file');
-            }
-
-            logger.info(`The image has been successfully uploaded and compressed: ${filePath}`);
-        });
+        logger.info(`The image has been successfully uploaded and compressed: ${filePath}`);
 
         return result;
     }
