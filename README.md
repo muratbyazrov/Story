@@ -6,7 +6,6 @@
 - Встроенный адаптер для PostgresSQL
 - Работа с токенами
 - Работа с файлами
-- Защита от ddos-атак
 - Логгирование
 - Валидация
 - Подходит для микросервисной архитектуры
@@ -35,12 +34,13 @@
 - [Ошибки](#Ошибки)
 - [Основные модули Story](#Основные-модули-Story)
     - [gate](#gate)
-    - [http-adapter](http-adapter)
-    - [ws-adapter](ws-adapter)
+    - [http-adapter](#http-adapter)
+    - [ws-adapter](#ws-adapter)
     - [rmq-adapter](#rmq-adapter)
-    - [db-adapter](db-adapter)
-    - [validator](validator)
-    - [logger](logger)
+    - [db-adapter](#db-adapter)
+    - [files-adapter](#files-adapter)
+    - [validator](#validator)
+    - [logger](#logger)
 
 ### Файловая структура проекта
 
@@ -115,6 +115,18 @@ module.exports = {
         host: 'http-story-host',
         port: 3000,
         path: '/story-example-api/v1',
+        requestOptions: {
+            limit: '1mb',
+        },
+        cors: {
+            corsOptions: {
+                origin: ['http://localhost:8081', 'http://example.com'],
+                methods: ['GET', 'POST', 'PUT', 'DELETE'],
+                allowedHeaders: ['Content-Type', 'Authorization'],
+                credentials: true,
+            },
+            allowedAllHosts: true,
+        },
     },
     ws: {
         host: '192.168.100.142',
@@ -126,7 +138,6 @@ module.exports = {
             port: 5672,
             user: 'story',
             password: 'test',
-            queueName: 'story-queue',
         },
         consume: {
             exchange: 'cats',
@@ -143,11 +154,11 @@ module.exports = {
         publish: {
             persistent: true,
             exchanges: {
-                storyExchange_1: {
+                storyExchange1: {
                     exchange: 'story-exchange',
                     routingKey: 'story-routing-key',
                 },
-                storyExchange_2: {
+                storyExchange2: {
                     exchange: 'story-exchange',
                     routingKey: 'story-routing-key',
                 },
@@ -166,12 +177,17 @@ module.exports = {
     filesAdapter: {
         maxFileSizeMb: 10,
         createPath: '/story-api/v1/create',
+        createBase64Path: '/story-api/v1/createBase64',
         getPath: '/story-api/v1/get',
         destination: `${__dirname}/uploads`,
         imagesCompression: {
+            enabled: false,
             widthPx: null,
             heightPx: null,
         },
+    },
+    logger: {
+        replacerList: [],
     },
 };
 ```
@@ -187,11 +203,11 @@ const {CatsService} = require('./src/entities/cats/cats-service.js');
 class App {
     constructor() {
         Story.configInit(); // Фреймворк берет конфигурационный файл
+        Story.gateInit([
+            {domain: 'cats', Controller: CatsController, Service: CatsService},
+        ]);
         Story.adaptersInit(); // Запускаются адаптеры, такие как адаптер к Postgres и RabbitMQ
         Story.protocolsInit(); // Запускаются сетевые протоколы (http, ws)
-        Story.gateInit([
-            {domain: 'cats', Controller: CatsControllerController, Service: CatsService},
-        ]);
     }
 }
 
@@ -214,18 +230,18 @@ service и вызывать другие service
 // cats-controller.js
 const {Story} = require('story-system');
 const {getCatsSchema} = require('./schemas.js');
-const {CatsService} = require('./cats-service');
 
 class CatsController {
-    constructor(config) { // тут можно получить текущий конфиг 
-        this.accountsService = new CatsService(config); // и передать его дальше
+    constructor(config, catsService) {
+        this.config = config;
+        this.catsService = catsService;
     }
 
     getCats(data, tokenData) {
         Story.validator.validate(data, getCatsSchema);
-        const {catId} = tokenData;
+        const {catId} = tokenData || {};
         console.log('${catId} - это id кота, который был передан в функцию `genetateToken` при генерации токена');
-        return this.accountsService.getCats(data);
+        return this.catsService.getCats(data);
     }
 }
 
@@ -286,7 +302,7 @@ const {Story: {validator: {schemaItems: {string, number, limit}}}} = require('st
 const getCatsSchema = {
     id: 'getCatsSchema',
     type: 'object',
-    additionalItems: true,
+    additionalProperties: true,
     properties: {
         params: {
             type: 'object',
@@ -323,7 +339,7 @@ module.exports = {
 ```
 
 *Примечание* <br>
-По http всегда принимается POST-запрос. Не используйте GET, UPDATE и так далее
+По http всегда принимается POST-запрос. Не используйте GET, PUT и так далее
 
 ### Пример ответа
 
@@ -348,13 +364,11 @@ module.exports = {
 {
   "domain": "cats",
   "event": "getCats",
-  "error": [
-    {
-      "code": 403,
-      "name": "Forbidden",
-      "message": "error message"
-    }
-  ]
+  "error": {
+    "code": 403,
+    "name": "Forbidden",
+    "message": "error message"
+  }
 }
 ```
 
@@ -367,6 +381,19 @@ module.exports = {
 мнению очень удобно.
 
 #### http
+
+- HTTP-адаптер принимает только `POST` на `http.path`
+- Тело запроса должно соответствовать [общему формату](#Пример-запроса)
+- Лимиты тела настраиваются в `http.requestOptions`
+- CORS настраивается через `http.cors`
+    - `allowedAllHosts: true` включает `cors()` без ограничений
+    - `allowedAllHosts: false` включает `cors(corsOptions)`
+
+Если в конфиге есть `filesAdapter`, дополнительно поднимаются маршруты:
+
+- `filesAdapter.createPath` - `multipart/form-data` (поле файла: `image`)
+- `filesAdapter.createBase64Path` - JSON с `params.base64File`
+- `filesAdapter.getPath` - статическая выдача файлов из `filesAdapter.destination`
 
 #### websockets
 
@@ -412,38 +439,37 @@ createMessage(data)
 ```javascript
 module.exports = {
     rmq: {
-        connect: { 
+        connect: {
             // Настройки подключения
-            host: '127.10.10.11',   // По умолчанию localhost
-            port: 5672,             // По умолчанию 5672
-            queueName: 'cats',      // По умолчанию 5672
-            user: 'test',           // По умолчанию story
-            password: 'test',       // По умолчанию story
+            host: '127.10.10.11',
+            port: 5672,
+            user: 'test',
+            password: 'test',
         },
-        consume: {                  
+        consume: {
             // Настройки прослушки сообщений
-            exchange: 'cats',                       // Название обменника. По умолчанию 'story'
-            exchangeType: 'direct',                 // Тип обменника. По умолчанию 'fanout'
-            exchangeDurable: false,                 // Сохранять ли состояние обменника после отключения сервера RabbitMQ. По умолчанию false
-            bindPattern: 'cats_pattern',            // Паттерн (строка), по которому надо привязывать обменники с очередями
-            queue: 'cats',                          // Имя очереди, которую будем слушать. Если не указать, название будет сгенерировано
-            queueDurable: false,                    // Сохранять ли состояние очереди после отключения сервера RabbitMQ. По умолчанию false 
-            noAck: true,                            // Автоматическое подтверждение (или нет) сообщений
-            prefetchCount: 1,                       // Максимальное количество сообщений, принимаемых потребителем за раз
-            xMessageTtl: 10 * 60 * 1000,           // Время жизни сообщений в миллисекундах
-            selfAck: true,                          // Подписывать и подтверждать собственные сообщения
+            exchange: 'cats',
+            exchangeType: 'direct',
+            exchangeDurable: false,
+            bindPattern: 'cats_pattern',
+            queue: 'cats',
+            queueDurable: false,
+            noAck: false,
+            prefetchCount: 1,
+            xMessageTtl: 10 * 60 * 1000,
+            selfAck: true,
         },
-        publish: {                                  
+        publish: {
             // Настройки отправки сообщений
-            persistent: true,                      // Сохранять сообщения на диске сервера RabbitMQ или нет
-            exchanges: {                          
-                // Обменники, в которые публикуем сообщения 
+            persistent: true,
+            exchanges: {
+                // Обменники, в которые публикуем сообщения
                 dogs: {
-                    exchange: 'story',             // Название обменника
-                    routingKey: 'account',         // Ключ маршрутизации. Работает в паре с bindPattern
-                }
-            }
-        }
+                    exchange: 'story',
+                    routingKey: 'account',
+                },
+            },
+        },
     }
 }
 
@@ -452,7 +478,7 @@ module.exports = {
 Пример публикации сообщения в rmq
 
 ```js
-const {rmq: {publish: {exchanges}}, token} = require('../../../config');
+const {rmq: {publish: {exchanges}}} = require('../../../config');
 
 async function publishCatInRmq() {
     await Story.rmqAdapter.publish({
@@ -460,7 +486,7 @@ async function publishCatInRmq() {
             domain: 'messages',
             event: 'test',
             params: {},
-            token: await Story.token.generateToken({}, token),
+            token: await Story.token.generateToken({catId: 1}),
         },
         options: exchanges.dogs,
     });
@@ -473,8 +499,8 @@ async function publishCatInRmq() {
 
 ```json
 {
-  "code": 900,
-  "name": "Data Base Error",
+  "code": 1900,
+  "name": "Database error",
   "message": "error message"
 }
 ```
@@ -483,7 +509,7 @@ async function publishCatInRmq() {
 
 ```json
 {
-  "code": 600,
+  "code": 1600,
   "name": "RMQ error",
   "message": "error message"
 }
@@ -493,7 +519,7 @@ async function publishCatInRmq() {
 
 ```json
 {
-  "code": 400,
+  "code": 422,
   "name": "Validation error",
   "message": "error message"
 }
@@ -503,7 +529,7 @@ async function publishCatInRmq() {
 
 ```json
 {
-  "code": 800,
+  "code": 401,
   "name": "Token error",
   "message": "error message"
 }
@@ -524,7 +550,27 @@ async function publishCatInRmq() {
 ```json
 {
   "code": 404,
-  "name": "Not Found",
+  "name": "Not found",
+  "message": "error message"
+}
+```
+
+Ошибка BadRequest
+
+```json
+{
+  "code": 400,
+  "name": "Bad request",
+  "message": "error message"
+}
+```
+
+Ошибка Internal
+
+```json
+{
+  "code": 500,
+  "name": "Internal error",
   "message": "error message"
 }
 ```
@@ -551,20 +597,22 @@ db-migrate up --config ./database.development.json -m ./migrations
 module.exports = {
   token: {
     enabled: true,
-      key: 'token-key',
-      expiresIn: 60 * 1000,
-      uncheckMethods: {
+    key: 'token-key',
+    expiresIn: '15m',
+    algorithm: 'HS256',
+    uncheckMethods: {
       cats: ['signIn', 'createCat'],
-    }
-  }
+    },
+  },
 };
 ```
 
 Давайте разберем подробнее каждую настройку:
 
 - `enabled`- *boolean* - если true, то у всех запросов будет проверяться токен
-- `expiresIn`- *number* - время жизни токена в миллисекундах. По умолчанию 24 часа Рефреш токена будет реализован в
-  след. версиях
+- `key` - *string* - секрет для подписи JWT
+- `expiresIn` - см формат `jsonwebtoken` (`'15m'`, `'7d'` или число в секундах). Рекомендуется строковый формат
+- `algorithm` - *string* - алгоритм подписи JWT (например `HS256`)
 - `uncheckMethods`- *object* - Объект ключами которого являются домены (`domain`), а значениям - массив
   методов (`event`). Для
   этих методов токен не будет проверяться, даже если будет включен флаг enabled. Обратная логика будет реализована в
@@ -573,8 +621,6 @@ module.exports = {
 Пример авторизации, с генерацией и возвращением токена
 
 ```js
-const config = require('../../../config');
-
 signIn(data)
 {
     Story.validator.validate(data, signInSchema);
@@ -583,7 +629,7 @@ signIn(data)
         throw new Story.errors.Forbidden('Нет такого кота!');
     }
 
-    return {token: await Story.token.generateToken(account, config.token)};
+    return {token: await Story.token.generateToken(cat)};
 }
 ```
 
@@ -621,7 +667,7 @@ Story - это что-то среднее между минималистиче�
 такими как работа с БД и доменно-событийная модель. Присылайте свои идеи по улучшения и mergeRequests!
 
 [//]: # (
-Сначала запускаются адаптеры, потом запускается гейт
+Рекомендуемый порядок: configInit -> gateInit -> adaptersInit -> protocolsInit
 )
 
 ### gate
@@ -636,13 +682,53 @@ Story - это что-то среднее между минималистиче�
     - Проверяет, существует ли `domain`. Если `domain` не существует, возвращает ответ с ошибкой.
     - Проверяет, существует ли метод (`event`). Если метод не существует, возвращает ответ с ошибкой.
 - Выполняет запрос, обращаясь к нужному контроллеру, а затем к нужному методу контроллера
-  (`controllers[data.domain][data.event](data)`, где `data` - это тело запроса
+  (`controllers[data.domain][data.event](data, tokenData)`, где `data` - это тело запроса)
 - Приводит ответ к системному ответу
 - Возвращает ответ
 
 *Примечание*. Если вы задаетесь вопросом, как запросы попадают в `gate`, то обратите внимание на [корневой](index.js)
 файл фреймворка. Здесь видно, что после инициализации в адаптеры передаются колбэком метод
 `gate.run(request)`, который после инициализации проекта содержит всю логику контроллеров в себе.
+
+### http-adapter
+
+- Поднимает `express` сервер на `http.host:http.port`
+- Регистрирует `POST` обработчик для `http.path`
+- Поддерживает CORS (`http.cors`) и лимиты тела (`http.requestOptions`)
+- При наличии `filesAdapter` регистрирует маршруты загрузки/выдачи файлов
+
+### ws-adapter
+
+- Поднимает WebSocket-сервер на `ws.host/ws.port`
+- При подключении клиента отправляет `{sessionId}` и хранит его в памяти
+- Все входящие сообщения передаются в `gate.run`
+- Для исходящих сообщений используйте `Story.wsAdapter.send(message, options)`
+
+### db-adapter
+
+- Создает `pg.Pool` с параметрами из `db`
+- По флагу `db.runMigrations` запускает `db-adapter/migration-runner.sh`
+- Выполняет SQL через `Story.dbAdapter.execQuery({queryName, params, options})`
+- Поддерживает шаблоны вида `/*paramName: ... */` для условных фрагментов SQL
+
+### files-adapter
+
+- Принимает загрузку `multipart` и `base64`
+- Контролирует максимальный размер файла через `maxFileSizeMb`
+- Поддерживает опциональное сжатие изображений (`imagesCompression.enabled`)
+- Умеет удалять файл методом `Story.filesAdapter.deleteFileByName(filename)`
+
+### validator
+
+- Обертка над `jsonschema`
+- Встроенные типы схем доступны через `Story.validator.schemaItems`
+- В случае ошибки выбрасывается `ValidationError`
+
+### logger
+
+- Логи `info/error` с timestamp
+- Поддержка маскировки полей через `logger.replacerList` в конфиге
+- Маскировка применяется рекурсивно к объектам логов
 
 ### Rmq Adapter
 
@@ -653,7 +739,7 @@ Story - это что-то среднее между минималистиче�
 Инициализирующий метод
 
 - Подключается к серверу rabbitMQ
-- Вызывает приватный метод `cunsume`
+- Вызывает метод `consume`
 - Использует настройки конфига:
     - `host` - хост сервера rabbitMQ
     - `port` - порт сервера rabbitMQ
@@ -666,12 +752,12 @@ Story - это что-то среднее между минималистиче�
 
 - Создает канал `connection.createChannel()`
     - В рамках канала настраивает обменник `channel.assertExchange(exchange, type, options)`
-    - Настраивает очередь `chanel.assertQueue(queue, options)`
-        - Настраивает привязку `chanel.bindQueue(queue, source, pattern, argt)`. Нужно для маршрутизации сообщений.
+    - Настраивает очередь `channel.assertQueue(queue, options)`
+        - Настраивает привязку `channel.bindQueue(queue, source, pattern, args)`. Нужно для маршрутизации сообщений.
           Подробнее [тут](https://www.rabbitmq.com/tutorials/tutorial-four-javascript.html)
     - Запускает прослушку сообщений: `channel.consume()`
 - Использует настройки конфига:
-    - `exchange` - название очереди
+    - `exchange` - название exchange
     - `exchangeType` - тип маршрутизатора. Подробнее про
       типы [тут](https://habr.com/ru/company/southbridge/blog/703060/)
       и [тут](https://www.rabbitmq.com/tutorials/tutorial-three-javascript.html)
@@ -691,15 +777,11 @@ Story - это что-то среднее между минималистиче�
         - `false` - после перезапуска брокера очередь удалится
     - `exchangeDurable` - *boolean* - если true, то exchange будет сохранять свое состояние и восстанавливается после
       перезапуска сервера/брокера
-    - `noAck`- *boolean* - автоматическое подтверждение (или нет) сообщений. В любом случае rabbit подтвердит сообщение,
-      если оно висит больше 30 минут. (Этот таймаут
-      можно [настраивать](https://www.rabbitmq.com/consumers.html#acknowledgement-timeout)))
-        - `false` - сообщения не будут подтверждаться автоматически. Тогда при ошибке другой инстанс может взять
-          сообщение в работу. Но сервис должен сам подтверждать сообщения `channel.ack(msg)`.
-        - `true` - сообщение автоматически подтвердиться сразу после прочтения и удалится из очереди
+    - `noAck`- *boolean* - режим подтверждения сообщений
+        - `false` - ручное подтверждение: `ack` после успешного `callback`, при ошибке `nack` с requeue
+        - `true` - подтверждение на стороне RabbitMQ без ручных `ack/nack`
     - `prefetchCount` - *number* - Максимальное количество сообщений, принимаемых потребителем за раз. Установив `1`
       rabbit не отправит новое сообщение сервису, пока тот не подтвердит старое
-    - `bindQueuePattern` - *string* - По какому паттерну будут связываться `exchange` и `queue`
     - `xMessageTtl` - *number* - время жизни сообщений в миллисекундах. После этого сообщения удаляются из очереди, даже
       если не были акнуты
     - `selfAck` - *boolean* - полезно, когда вы хотите просто запублишить сообщение во все очереди, но хотите, чтобы
