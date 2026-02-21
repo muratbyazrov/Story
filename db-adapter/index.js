@@ -61,6 +61,7 @@ class DbAdapter {
         if (unlock) {
             text = this.unlockParams(text, params);
         }
+        text = this.removeLockedTemplates(text);
 
         const values = [];
         let paramNum = 0;
@@ -92,8 +93,12 @@ class DbAdapter {
     }
 
     unlockTemplate(query, templateName) {
-        const pattern = new RegExp(`/\\*${templateName}:(.+?)\\*/`, 'gm');
+        const pattern = new RegExp(`/\\*${templateName}:([\\s\\S]+?)\\*/`, 'gm');
         return query.replace(pattern, '$1');
+    }
+
+    removeLockedTemplates(query) {
+        return query.replace(/\/\*\w+:([\s\S]*?)\*\//g, ' ');
     }
 }
 
