@@ -66,7 +66,7 @@ class DbAdapter {
         const values = [];
         let paramNum = 0;
         text = text
-            .replace(/\:(\w+)/g, (text, placeholder) => {
+            .replace(/:(\w+)/g, (text, placeholder) => {
                 if (utils.has(params, placeholder)) {
                     ++paramNum;
                     values.push(params[placeholder]);
