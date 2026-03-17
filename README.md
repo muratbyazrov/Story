@@ -187,6 +187,7 @@ module.exports = {
         },
     },
     logger: {
+        level: 'info',
         replacerList: [],
     },
 };
@@ -726,7 +727,9 @@ Story - это что-то среднее между минималистиче�
 
 ### logger
 
-- Логи `info/error` с timestamp
+- Логи `debug/info/warn/error` с timestamp
+- Уровень логирования задается через `logger.level`
+- По умолчанию используется `info`, поэтому `debug`-логи скрыты
 - Поддержка маскировки полей через `logger.replacerList` в конфиге
 - Маскировка применяется рекурсивно к объектам логов
 

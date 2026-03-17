@@ -86,6 +86,7 @@ module.exports = {
         },
     },
     logger: {
+        level: 'info',
         replacerList: [],
     },
 };
