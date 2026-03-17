@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const bodyParser = require('body-parser');
 const {logger} = require('../logger');
 const {filesAdapter} = require('../files-adapter');
 const multer = require('multer');
@@ -46,12 +45,6 @@ class HttpAdapter {
         app.listen(port, host, () => {
             logger.info(`App listening HTTP (${host}:${port})`);
         });
-
-        try {
-            app.use(bodyParser.json());
-        } catch (error) {
-            logger.error(error);
-        }
 
         // standard requests
         app.post(this.httpConfig.path, async (req, res) => {
